@@ -34,11 +34,11 @@ ghc-options:
 - -Wredundant-constraints
 
 library:
-  source-dirs: src
+  source-dirs: lib
 
 executables:
-  strava-renamer-exe:
-    main:                Main.hs
+  strava-renamer:
+    main:                strava-renamer.hs
     source-dirs:         app
     ghc-options:
     - -threaded
