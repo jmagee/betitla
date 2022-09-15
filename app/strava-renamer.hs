@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Lib
+import StravaRenamer
 
 main :: IO ()
-main = someFunc
+main = rename >>= putStrLn
