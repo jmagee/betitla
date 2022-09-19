@@ -3,23 +3,17 @@ module StravaRenamer
 , localTimeToPOD
 ) where
 
-import           Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
+import           StravaRenamer.Time
 
-data PhaseOfDay = PreDawn
-                | Morning
-                | Afternoon
-                | Evening
-                | LateNight
-                deriving (Show)
+import           Data.Time           (NominalDiffTime)
 
-localTimeToPOD :: LocalTime -> PhaseOfDay
-localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
-  | hour < 3  = LateNight
-  | hour < 6  = PreDawn
-  | hour < 12 = Morning
-  | hour < 18 = Afternoon
-  | hour < 9  = Evening
-  | otherwise = LateNight
+{-data Activity =-}
+  {-Activity { _sport      :: Sport-}
+           {-, _distance   :: Distance-}
+           {-, _movingTime :: NominalDiffTime-}
+           {-, _elevation  :: Distance-}
+           {-, -}
+
 
 rename :: IO String
 rename = pure "blah"
