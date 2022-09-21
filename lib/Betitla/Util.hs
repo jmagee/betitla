@@ -1,4 +1,4 @@
-module StravaRenamer.Util
+module Betitla.Util
 ( select
 , pickAny
 ) where

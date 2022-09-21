@@ -1,4 +1,4 @@
-# Changelog for `strava-renamer`
+# Changelog for `betitla`
 
 All notable changes to this project will be documented in this file.
 

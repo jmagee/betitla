@@ -1,4 +1,4 @@
-module StravaRenamer.Distance
+module Betitla.Distance
 ( Distance (..)
 , DistanceRating (..)
 , Elevation (..)
@@ -10,8 +10,8 @@ module StravaRenamer.Distance
 , pickDistanceRatingTerm
 ) where
 
-import           StravaRenamer.Sport
-import           StravaRenamer.Util
+import           Betitla.Sport
+import           Betitla.Util
 
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)

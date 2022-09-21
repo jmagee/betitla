@@ -1,6 +1,6 @@
 module Main (main) where
 
-import StravaRenamer
+import Betitla
 
 main :: IO ()
 main = rename >>= putStrLn

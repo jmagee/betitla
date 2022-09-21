@@ -1,4 +1,4 @@
-module StravaRenamer.Speed
+module Betitla.Speed
 ( Speed (..)
 , SpeedRating (..)
 , speedToRating
@@ -7,8 +7,8 @@ module StravaRenamer.Speed
 , toMPK
 ) where
 
-import           StravaRenamer.Sport
-import           StravaRenamer.Util
+import           Betitla.Sport
+import           Betitla.Util
 
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)

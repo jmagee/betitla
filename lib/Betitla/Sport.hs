@@ -1,9 +1,9 @@
-module StravaRenamer.Sport
+module Betitla.Sport
 ( Sport (..)
 , pickSportTerm
 ) where
 
-import           StravaRenamer.Util
+import           Betitla.Util
 
 data Sport = AlpineSki
            | BackcountrySki

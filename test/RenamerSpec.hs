@@ -1,8 +1,8 @@
 module RenamerSpec (spec) where
 
-import           StravaRenamer.Distance
-import           StravaRenamer.Speed
-import           StravaRenamer.Time
+import           Betitla.Distance
+import           Betitla.Speed
+import           Betitla.Time
 
 import           Test.Hspec
 import           Test.Hspec.QuickCheck  (prop)

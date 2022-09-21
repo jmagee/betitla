@@ -1,6 +1,6 @@
-name:                strava-renamer
+name:                betitla
 version:             0.1.0.0
-github:              "jmagee/strava-renamer"
+github:              "jmagee/betitla"
 license:             BSD2
 author:              "Josh Magee"
 maintainer:          "magee.joshua@yahoo.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/jmagee/strava-renamer#readme>
+description:         Please see the README on GitHub at <https://github.com/jmagee/betitla#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -43,18 +43,18 @@ library:
     - time
 
 executables:
-  strava-renamer:
-    main:                strava-renamer.hs
+  betitla-renamer:
+    main:                betitla-renamer.hs
     source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - strava-renamer
+    - betitla
 
 tests:
-  strava-renamer-test:
+  betitla-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -64,5 +64,5 @@ tests:
     - -Wno-missing-export-lists
     dependencies:
     - QuickCheck
-    - strava-renamer
+    - betitla
     - hspec

@@ -1,4 +1,4 @@
-module StravaRenamer.Time
+module Betitla.Time
 ( PhaseOfDay (..)
 , Duration (..)
 , DurationRating (..)
@@ -11,8 +11,8 @@ module StravaRenamer.Time
 , pickPodTerm
 ) where
 
-import           StravaRenamer.Sport
-import           StravaRenamer.Util
+import           Betitla.Sport
+import           Betitla.Util
 
 import           Data.Time.LocalTime       (LocalTime (..), TimeOfDay (..))
 

@@ -1,8 +1,8 @@
-module StravaRenamer.Sentence
+module Betitla.Sentence
 ( Sentence (..)
 ) where
 
-import           StravaRenamer.ActivityRating
+import           Betitla.ActivityRating
 
 -- Sentence types
 -- "Epic ride .."

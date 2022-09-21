@@ -1,4 +1,4 @@
-module StravaRenamer
+module Betitla
 ( rename
 ) where
 

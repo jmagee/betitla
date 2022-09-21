@@ -1,11 +1,11 @@
-module StravaRenamer.ActivityRating
+module Betitla.ActivityRating
 ( ActivityRating (..)
 ) where
 
-import           StravaRenamer.Distance
-import           StravaRenamer.Speed
-import           StravaRenamer.Sport
-import           StravaRenamer.Time
+import           Betitla.Distance
+import           Betitla.Speed
+import           Betitla.Sport
+import           Betitla.Time
 
 data ActivityRating =
   ActivityRating { _sport           :: Sport
