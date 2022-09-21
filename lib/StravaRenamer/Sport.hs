@@ -1,46 +1,48 @@
 module StravaRenamer.Sport
 ( Sport (..)
-, sportTerms
+, pickSportTerm
 ) where
 
+import           StravaRenamer.Util
+
 data Sport = AlpineSki
-              | BackcountrySki
-              | Canoeing
-              | Crossfit
-              | EBikeRide
-              | Elliptical
-              | Golf
-              | Handcycle
-              | Hike
-              | IceSkate
-              | InlineSkate
-              | Kayaking
-              | Kitesurf
-              | NordicSki
-              | Ride
-              | RockClimbing
-              | RollerSki
-              | Rowing
-              | Run
-              | Sail
-              | Skateboard
-              | Snowboard
-              | Snowshoe
-              | Soccer
-              | StairStepper
-              | StandUpPaddling
-              | Surfing
-              | Swim
-              | Velomobile
-              | VirtualRide
-              | VirtualRun
-              | Walk
-              | WeightTraining
-              | Wheelchair
-              | Windsurf
-              | Workout
-              | Yoga
-              deriving (Show)
+           | BackcountrySki
+           | Canoeing
+           | Crossfit
+           | EBikeRide
+           | Elliptical
+           | Golf
+           | Handcycle
+           | Hike
+           | IceSkate
+           | InlineSkate
+           | Kayaking
+           | Kitesurf
+           | NordicSki
+           | Ride
+           | RockClimbing
+           | RollerSki
+           | Rowing
+           | Run
+           | Sail
+           | Skateboard
+           | Snowboard
+           | Snowshoe
+           | Soccer
+           | StairStepper
+           | StandUpPaddling
+           | Surfing
+           | Swim
+           | Velomobile
+           | VirtualRide
+           | VirtualRun
+           | Walk
+           | WeightTraining
+           | Wheelchair
+           | Windsurf
+           | Workout
+           | Yoga
+           deriving (Show)
 
 sportTerms :: Sport -> [String]
 sportTerms AlpineSki = ["ski", "mountain ski", "alpine ski"]
@@ -80,3 +82,6 @@ sportTerms Wheelchair = ["wheelchair", "chairing", "wheeling"]
 sportTerms Windsurf = ["wind surf", "surf"]
 sportTerms Workout = ["workout", "exercise", "the Jane Fonda"]
 sportTerms Yoga = ["yoga", "peace", "joy"]
+
+pickSportTerm :: Sport -> IO String
+pickSportTerm = pickAny . sportTerms

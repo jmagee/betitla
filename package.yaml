@@ -38,6 +38,8 @@ library:
   dependencies:
     - QuickCheck
     - strive
+    - random
+    - random-shuffle
     - time
 
 executables:
