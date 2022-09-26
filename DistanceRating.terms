@@ -1,0 +1,20 @@
+[
+    { "_term": "VeryNear"
+    , "_synonyms": ["very short", "super short", "suspiciously short", "embarassingly short"]
+    }
+,   { "_term": "Near"
+    , "_synonyms": ["short", "not-long", "brusque", "scant", "little"]
+    }
+,   { "_term": "Medium"
+    , "_synonyms": ["midsize", "medium", "middling", "modest", "reasonable"]
+    }
+,   { "_term": "Far"
+    , "_synonyms": ["far", "immense", "great", "extended"]
+    }
+,   { "_term": "VeryFar"
+    , "_synonyms": ["very far", "almighty", "monstrous", "beastly"]
+    }
+,   { "_term": "InsaneFar"
+    , "_synonyms": ["divine", "omnipotent", "colossus", "insane"]
+    }
+]

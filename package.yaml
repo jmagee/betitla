@@ -37,9 +37,14 @@ library:
   source-dirs: lib
   dependencies:
     - QuickCheck
-    - strive
+    - aeson
+    - bytestring
+    - containers
+    - directory
+    - path
     - random
     - random-shuffle
+    - strive
     - time
 
 executables:

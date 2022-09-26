@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE QuasiQuotes #-}
+
 module Betitla.Distance
 ( Distance (..)
 , DistanceRating (..)
@@ -8,11 +11,17 @@ module Betitla.Distance
 , toMeters
 , toKm
 , pickDistanceRatingTerm
+, readDistanceRatings
 ) where
 
+import           GHC.Generics
+
 import           Betitla.Sport
+import           Betitla.TermTable
 import           Betitla.Util
 
+import           Data.Aeson                (FromJSON)
+import           Path                      (File, Abs, absfile)
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
 
@@ -47,7 +56,9 @@ data DistanceRating = VeryNear
                     | Far
                     | VeryFar
                     | InsaneFar
-                    deriving (Show)
+                    deriving (Show, Generic)
+
+instance FromJSON DistanceRating
 
 distanceRatings :: [DistanceRating]
 distanceRatings = [VeryNear, Near, Medium, Far, VeryFar, InsaneFar]
@@ -74,6 +85,11 @@ distanceRatingTerms Medium = ["midsize", "medium", "middling", "modest", "reason
 distanceRatingTerms Far = ["far", "immense", "great", "extended"]
 distanceRatingTerms VeryFar = ["very far", "almighty", "monstrous", "beastly"]
 distanceRatingTerms InsaneFar = ["divine", "omnipotent", "colossus", "insane"]
+
+readDistanceRatings :: IO (TermTable DistanceRating)
+readDistanceRatings = readTermTable file
+  where
+    file = [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
 
 pickDistanceRatingTerm :: DistanceRating -> IO String
 pickDistanceRatingTerm = pickAny . distanceRatingTerms
