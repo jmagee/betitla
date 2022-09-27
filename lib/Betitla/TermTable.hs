@@ -5,17 +5,17 @@ module Betitla.TermTable
 ( TermTableEntry (..)
 , TermTable
 , readTermTable
-, pickRandSyn
+, pickRandTerm
 ) where
 
 import           GHC.Generics
 
 import           Betitla.Util
 
-import           Control.Monad (mzero)
 import           Data.Aeson    (FromJSON, Value (..), eitherDecode', parseJSON,
                                 (.:))
-import           Data.Sequence (Seq (..))
+import           Data.Maybe    (fromMaybe)
+import           Data.Sequence (Seq (..), findIndexL)
 import qualified Data.Sequence as S (length, lookup)
 import           Path          (Abs, File, Path)
 import           System.Random (getStdGen, randomR)
@@ -37,18 +37,33 @@ type TermTable a = Seq (TermTableEntry a)
               {-<*> v .: "synonyms"-}
   {-parseJSON _ = mzero-}
 
+-- | Pick a random term from a term table.
+pickRandTerm :: Eq a => a -> TermTable a -> IO String
+pickRandTerm key table = maybe (pure "nothing") pickRandSyn $
+  findIndexL ((key ==) . _term) table >>= (flip S.lookup) table
+
 readTermTable :: FromJSON a => Path Abs File -> IO (TermTable a)
 readTermTable file = unlessEmpty file Empty $ \contents ->
   either (jbail file) id (eitherDecode' contents :: FromJSON a => Either String (TermTable a))
 
--- | Pick a random term from a term table.
---pickRandTerm :: TermTable a -> a -> IO String
---pickRandTerm table key =
+{-pickRandTerm' :: Eq a => a -> TermTable a -> IO String-}
+{-pickRandTerm' key table = do-}
+  {-x <- runMaybeT $ (lift.pure) (indexInto table) >>= \z -> (lift.pure) ((flip S.lookup) table z) >>= \x -> pickRandSyn' x-}
+  {-case x of-}
+    {-Nothing  -> pure "nothing"-}
+    {-Just x   -> pure x-}
+  {-where-}
+    {-indexInto = findIndexL ((key ==) . _term)-}
 
 pickRandSyn :: TermTableEntry a -> IO String
 pickRandSyn (TermTableEntry _  syns) = do
   gen <- getStdGen
-  let (r, _) = randomR (0, S.length syns) gen
-  case S.lookup r syns of
-    Nothing -> pure "flabbergasted"
-    Just x  -> pure x
+  let r  = fst $ randomR (0, S.length syns - 1) gen
+  pure $ fromMaybe "nothing" (S.lookup r syns)
+
+{-pickRandSyn' :: TermTableEntry a -> MaybeIO String-}
+{-pickRandSyn' (TermTableEntry _  syns) = MaybeT $ do-}
+  {-gen <- getStdGen-}
+  {-let r  = fst $ randomR (0, S.length syns) gen-}
+  {-pure $ S.lookup r syns-}
+  {---pure $ fromMaybe "nothing" (S.lookup r syns)-}

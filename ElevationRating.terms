@@ -1,0 +1,17 @@
+[
+    { "_term": "PancakeFlat"
+    , "_synonyms": ["pancake flat", "Florida-like", "ultraflat"]
+    }
+,   { "_term": "Flat"
+    , "_synonyms": ["flat"]
+    }
+,   { "_term": "Hilly"
+    , "_synonyms": ["hilly", "rolling"]
+    }
+,   { "_term": "VeryHilly"
+    , "_synonyms": ["very hilly", "mountainous"]
+    }
+,   { "_term": "SuperGoat"
+    , "_synonyms": ["super hilly", "goat-like"]
+    }
+]

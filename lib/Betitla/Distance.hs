@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE InstanceSigs  #-}
+{-# LANGUAGE QuasiQuotes   #-}
 
 module Betitla.Distance
 ( Distance (..)
@@ -11,17 +12,18 @@ module Betitla.Distance
 , toMeters
 , toKm
 , pickDistanceRatingTerm
-, readDistanceRatings
+, pickElevationRatingTerm
 ) where
 
 import           GHC.Generics
 
 import           Betitla.Sport
+import           Betitla.Term
 import           Betitla.TermTable
 import           Betitla.Util
 
 import           Data.Aeson                (FromJSON)
-import           Path                      (File, Abs, absfile)
+import           Path                      (Abs, File, Path, absfile)
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
 
@@ -56,9 +58,12 @@ data DistanceRating = VeryNear
                     | Far
                     | VeryFar
                     | InsaneFar
-                    deriving (Show, Generic)
+                    deriving (Show, Eq, Generic)
 
+instance Term DistanceRating
 instance FromJSON DistanceRating
+instance Arbitrary DistanceRating where
+  arbitrary = oneof $ pure <$> distanceRatings
 
 distanceRatings :: [DistanceRating]
 distanceRatings = [VeryNear, Near, Medium, Far, VeryFar, InsaneFar]
@@ -77,22 +82,9 @@ distanceToRating sport dist = select dist (pickDtable sport) distanceRatings
     pickDtable AlpineSki = Kilometers <$> [1, 5, 10, 20, 30]
     pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]
 
-distanceRatingTerms :: DistanceRating -> [String]
-distanceRatingTerms VeryNear=
-  ["very short", "super short", "suspiciously short", "embarrassingly short"]
-distanceRatingTerms Near = ["short", "not-long", "brusque", "scant", "little"]
-distanceRatingTerms Medium = ["midsize", "medium", "middling", "modest", "reasonable"]
-distanceRatingTerms Far = ["far", "immense", "great", "extended"]
-distanceRatingTerms VeryFar = ["very far", "almighty", "monstrous", "beastly"]
-distanceRatingTerms InsaneFar = ["divine", "omnipotent", "colossus", "insane"]
-
-readDistanceRatings :: IO (TermTable DistanceRating)
-readDistanceRatings = readTermTable file
-  where
-    file = [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
-
+-- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
 pickDistanceRatingTerm :: DistanceRating -> IO String
-pickDistanceRatingTerm = pickAny . distanceRatingTerms
+pickDistanceRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
 
 data Elevation = MetersGained Int
                deriving (Show, Eq, Ord)
@@ -105,7 +97,12 @@ data ElevationRating = PancakeFlat
                      | Hilly
                      | VeryHilly
                      | SuperGoat
-                     deriving (Show)
+                     deriving (Show, Eq, Generic)
+
+instance Term ElevationRating
+instance FromJSON ElevationRating
+instance Arbitrary ElevationRating where
+  arbitrary = oneof $ pure <$> elevationRatings
 
 elevationRatings :: [ElevationRating]
 elevationRatings = [PancakeFlat, Flat, Hilly, VeryHilly, SuperGoat]
@@ -116,3 +113,7 @@ elevationToRating sport elevation dist = select (metersPerKm elevation dist) (pi
     metersPerKm (MetersGained m) (Kilometers km) = m `div` km
     metersPerKm x y = metersPerKm x (toKm y)
     pickDtable Ride = [1, 4, 10, 20]
+
+-- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
+pickElevationRatingTerm :: ElevationRating -> IO String
+pickElevationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/ElevationRating.terms|]

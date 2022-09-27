@@ -1,0 +1,20 @@
+[
+    { "_term": "VeryShort"
+    , "_synonyms": ["very short", "super short", "suspiciously short", "embarassingly short", "mini"]
+    }
+,   { "_term": "Short"
+    , "_synonyms": ["short", "not-long", "brusque", "scant", "little"]
+    }
+,   { "_term": "Average"
+    , "_synonyms": ["midlength", "medium", "middling", "modest", "reasonable"]
+    }
+,   { "_term": "Long"
+    , "_synonyms": ["long", "lengthy", "great", "extended"]
+    }
+,   { "_term": "VeryLong"
+    , "_synonyms": ["very long", "monstrous", "beastly"]
+    }
+,   { "_term": "InsaneLong"
+    , "_synonyms": ["endless", "infinite", "timeless", "insane"]
+    }
+]

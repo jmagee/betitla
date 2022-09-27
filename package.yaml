@@ -46,6 +46,7 @@ library:
     - random-shuffle
     - strive
     - time
+    - transformers
 
 executables:
   betitla-renamer:

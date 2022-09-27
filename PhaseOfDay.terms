@@ -1,0 +1,17 @@
+[
+    { "_term": "PreDawn"
+    , "_synonyms": ["before the sunrise", "bleeding early", "before the dawn", "while the world sleeps"]
+    }
+,   { "_term": "Morning"
+    , "_synonyms": ["morning", "ante meridiem", "early"]
+    }
+,   { "_term": "Afternoon"
+    , "_synonyms": ["afternoon", "midday"]
+    }
+,   { "_term": "Evening"
+    , "_synonyms": ["evening", "after dinner"]
+    }
+,   { "_term": "LateNight"
+    , "_synonyms": ["night", "late", "midnight", "shadow"]
+    }
+]

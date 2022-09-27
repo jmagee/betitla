@@ -146,3 +146,17 @@ spec = do
     prop "x == y = compare x y == EQ" (ordPropF :: Speed -> Speed -> Bool)
     prop "min x y == if x <= y then x else y = True" (ordPropG :: Speed -> Speed -> Bool)
     prop "max x y == if x >= y then x else y = True" (ordPropH :: Speed -> Speed -> Bool)
+
+  describe "Eq DistanceRating" $ do
+    prop "Reflexivity" (reflexivity :: DistanceRating -> Bool)
+    prop "Symmetry" (symmetry :: DistanceRating -> DistanceRating -> Bool)
+    prop "Transitivity" (transitivityEq :: DistanceRating -> DistanceRating -> DistanceRating -> Bool)
+    prop "Substitutivity" (substitutivity :: DistanceRating -> DistanceRating -> Bool)
+    prop "Negation" (negation :: DistanceRating -> DistanceRating -> Bool)
+
+  describe "Eq ElevationRating" $ do
+    prop "Reflexivity" (reflexivity :: ElevationRating -> Bool)
+    prop "Symmetry" (symmetry :: ElevationRating -> ElevationRating -> Bool)
+    prop "Transitivity" (transitivityEq :: ElevationRating -> ElevationRating -> ElevationRating -> Bool)
+    prop "Substitutivity" (substitutivity :: ElevationRating -> ElevationRating -> Bool)
+    prop "Negation" (negation :: ElevationRating -> ElevationRating -> Bool)

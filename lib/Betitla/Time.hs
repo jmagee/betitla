@@ -1,20 +1,28 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE QuasiQuotes   #-}
+
 module Betitla.Time
 ( PhaseOfDay (..)
 , Duration (..)
 , DurationRating (..)
 , durationToRating
+, pickDurationRatingTerm
 , toSec
 , toMin
 , toHour
 , localTimeToPOD
-, podTerms
-, pickPodTerm
+, pickPhaseOfDayTerm
 ) where
 
+import           GHC.Generics
+
 import           Betitla.Sport
+import           Betitla.Term
 import           Betitla.Util
 
+import           Data.Aeson                (FromJSON)
 import           Data.Time.LocalTime       (LocalTime (..), TimeOfDay (..))
+import           Path                      (Abs, File, absfile)
 
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
@@ -24,7 +32,14 @@ data PhaseOfDay = PreDawn
                 | Afternoon
                 | Evening
                 | LateNight
-                deriving (Show)
+                deriving (Show, Eq, Generic)
+
+instance Term PhaseOfDay
+instance FromJSON PhaseOfDay
+
+-- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
+pickPhaseOfDayTerm :: PhaseOfDay -> IO String
+pickPhaseOfDayTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/PhaseOfDay.terms|]
 
 data Duration = Seconds Int
               | Minutes Int
@@ -67,7 +82,10 @@ data DurationRating = VeryShort
                     | Long
                     | VeryLong
                     | InsaneLong
-                    deriving (Show)
+                    deriving (Show, Eq, Generic)
+
+instance Term DurationRating
+instance FromJSON DurationRating
 
 durationRatings :: [DurationRating]
 durationRatings = [VeryShort, Short, Average, Long, VeryLong, InsaneLong]
@@ -83,6 +101,10 @@ durationToRating sport dur = select dur (pickDtable sport) durationRatings
     pickDtable AlpineSki = [Minutes 30, Hours 1, Hours 2, Hours 4, Hours 8]
     pickDtable Golf = [Minutes 15, Minutes 30, Hours 1, Hours 2, Hours 3]
 
+-- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
+pickDurationRatingTerm :: DurationRating -> IO String
+pickDurationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DurationRating.terms|]
+
 localTimeToPOD :: LocalTime -> PhaseOfDay
 localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
   | hour < 3  = LateNight
@@ -91,13 +113,3 @@ localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
   | hour < 18 = Afternoon
   | hour < 9  = Evening
   | otherwise = LateNight
-
-podTerms :: PhaseOfDay -> [String]
-podTerms PreDawn = ["before the sunrise", "bleeding early", "before the dawn", "while the world sleeps"]
-podTerms Morning = ["morning", "ante meridiem", "early"]
-podTerms Afternoon = ["afternoon", "midday"]
-podTerms Evening = ["evening", "after dinner"]
-podTerms LateNight = ["night", "late", "midnight", "shadow"]
-
-pickPodTerm :: PhaseOfDay -> IO String
-pickPodTerm = pickAny . podTerms
