@@ -160,3 +160,17 @@ spec = do
     prop "Transitivity" (transitivityEq :: ElevationRating -> ElevationRating -> ElevationRating -> Bool)
     prop "Substitutivity" (substitutivity :: ElevationRating -> ElevationRating -> Bool)
     prop "Negation" (negation :: ElevationRating -> ElevationRating -> Bool)
+
+  describe "Eq PhaseOfDay" $ do
+    prop "Reflexivity" (reflexivity :: PhaseOfDay -> Bool)
+    prop "Symmetry" (symmetry :: PhaseOfDay -> PhaseOfDay -> Bool)
+    prop "Transitivity" (transitivityEq :: PhaseOfDay -> PhaseOfDay -> PhaseOfDay -> Bool)
+    prop "Substitutivity" (substitutivity :: PhaseOfDay -> PhaseOfDay -> Bool)
+    prop "Negation" (negation :: PhaseOfDay -> PhaseOfDay -> Bool)
+
+  describe "Eq DurationRating" $ do
+    prop "Reflexivity" (reflexivity :: DurationRating -> Bool)
+    prop "Symmetry" (symmetry :: DurationRating -> DurationRating -> Bool)
+    prop "Transitivity" (transitivityEq :: DurationRating -> DurationRating -> DurationRating -> Bool)
+    prop "Substitutivity" (substitutivity :: DurationRating -> DurationRating -> Bool)
+    prop "Negation" (negation :: DurationRating -> DurationRating -> Bool)

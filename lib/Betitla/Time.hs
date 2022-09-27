@@ -37,6 +37,18 @@ data PhaseOfDay = PreDawn
 instance Term PhaseOfDay
 instance FromJSON PhaseOfDay
 
+instance Arbitrary PhaseOfDay where
+  arbitrary = oneof $ pure <$> [PreDawn, Morning, Afternoon, Evening, LateNight]
+
+localTimeToPOD :: LocalTime -> PhaseOfDay
+localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
+  | hour < 3  = LateNight
+  | hour < 6  = PreDawn
+  | hour < 12 = Morning
+  | hour < 18 = Afternoon
+  | hour < 9  = Evening
+  | otherwise = LateNight
+
 -- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
 pickPhaseOfDayTerm :: PhaseOfDay -> IO String
 pickPhaseOfDayTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/PhaseOfDay.terms|]
@@ -86,6 +98,8 @@ data DurationRating = VeryShort
 
 instance Term DurationRating
 instance FromJSON DurationRating
+instance Arbitrary DurationRating where
+  arbitrary = oneof $ pure <$> durationRatings
 
 durationRatings :: [DurationRating]
 durationRatings = [VeryShort, Short, Average, Long, VeryLong, InsaneLong]
@@ -104,12 +118,3 @@ durationToRating sport dur = select dur (pickDtable sport) durationRatings
 -- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
 pickDurationRatingTerm :: DurationRating -> IO String
 pickDurationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DurationRating.terms|]
-
-localTimeToPOD :: LocalTime -> PhaseOfDay
-localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
-  | hour < 3  = LateNight
-  | hour < 6  = PreDawn
-  | hour < 12 = Morning
-  | hour < 18 = Afternoon
-  | hour < 9  = Evening
-  | otherwise = LateNight
