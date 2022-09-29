@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE QuasiQuotes   #-}
+
 module Betitla.Speed
 ( Speed (..)
 , SpeedRating (..)
@@ -5,11 +8,16 @@ module Betitla.Speed
 , toMPS
 , toKPH
 , toMPK
+--, pickSpeedRatingTerm
 ) where
 
 import           Betitla.Sport
+import           Betitla.Term
 import           Betitla.Util
 
+import           Data.Aeson                (FromJSON)
+import           GHC.Generics              (Generic)
+import           Path                      (Abs, File, Path, absfile)
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
 
@@ -52,13 +60,19 @@ instance Arbitrary Speed where
   shrink x@(KmPerHour _) = [toMPS x]
   shrink (MetersPerSec _) = []
 
-
 data SpeedRating = TurtleSlow
                  | Slow
                  | Average
                  | Fast
                  | RabbitFast
-                 deriving (Show)
+                 deriving (Show, Eq, Generic)
+
+instance Term SpeedRating where
+  --termFile = const [absfile|/Users/jmagee/src/betitla.git/SpeedRating.terms|]
+  termFile = const "SpeedRating.terms"
+instance FromJSON SpeedRating
+instance Arbitrary SpeedRating where
+  arbitrary = oneof $ pure <$> speedRatings
 
 speedRatings :: [SpeedRating]
 speedRatings = [TurtleSlow, Slow, Average, Fast, RabbitFast]
@@ -74,3 +88,7 @@ speedToRating sport speed = select speed (pickDtable sport) speedRatings
     {-pickDtable Hike =-}
     {-pickDtable AlpineSki =-}
     {-pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]-}
+
+-- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
+--pickSpeedRatingTerm :: SpeedRating -> IO String
+--pickSpeedRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/SpeedRating.terms|]

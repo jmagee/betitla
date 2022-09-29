@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE InstanceSigs  #-}
 {-# LANGUAGE QuasiQuotes   #-}
 
 module Betitla.Distance
@@ -11,8 +10,8 @@ module Betitla.Distance
 , elevationToRating
 , toMeters
 , toKm
-, pickDistanceRatingTerm
-, pickElevationRatingTerm
+--, pickDistanceRatingTerm
+--, pickElevationRatingTerm
 ) where
 
 import           GHC.Generics
@@ -60,7 +59,9 @@ data DistanceRating = VeryNear
                     | InsaneFar
                     deriving (Show, Eq, Generic)
 
-instance Term DistanceRating
+instance Term DistanceRating where
+  --termFile = const [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
+  termFile = const "DistanceRating.terms"
 instance FromJSON DistanceRating
 instance Arbitrary DistanceRating where
   arbitrary = oneof $ pure <$> distanceRatings
@@ -83,8 +84,8 @@ distanceToRating sport dist = select dist (pickDtable sport) distanceRatings
     pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]
 
 -- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
-pickDistanceRatingTerm :: DistanceRating -> IO String
-pickDistanceRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
+--pickDistanceRatingTerm :: DistanceRating -> IO String
+--pickDistanceRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
 
 data Elevation = MetersGained Int
                deriving (Show, Eq, Ord)
@@ -99,7 +100,9 @@ data ElevationRating = PancakeFlat
                      | SuperGoat
                      deriving (Show, Eq, Generic)
 
-instance Term ElevationRating
+instance Term ElevationRating where
+  --termFile = const [absfile|/Users/jmagee/src/betitla.git/ElevationRating.terms|]
+  termFile = const "ElevationRating.terms"
 instance FromJSON ElevationRating
 instance Arbitrary ElevationRating where
   arbitrary = oneof $ pure <$> elevationRatings
@@ -115,5 +118,5 @@ elevationToRating sport elevation dist = select (metersPerKm elevation dist) (pi
     pickDtable Ride = [1, 4, 10, 20]
 
 -- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
-pickElevationRatingTerm :: ElevationRating -> IO String
-pickElevationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/ElevationRating.terms|]
+--pickElevationRatingTerm :: ElevationRating -> IO String
+--pickElevationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/ElevationRating.terms|]

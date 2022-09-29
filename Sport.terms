@@ -1,0 +1,113 @@
+[
+    { "_term": "AlpineSki"
+    , "_synonyms": ["ski", "mountain ski", "alpine ski"]
+    }
+,   { "_term": "BackcountrySki"
+    , "_synonyms": ["ski", "backcountry ski", "cross country ski"]
+    }
+,   { "_term": "Canoeing"
+    , "_synonyms": ["canoe ride", "canoeing", "boating"]
+    }
+,   { "_term": "Crossfit"
+    , "_synonyms": ["crossfit"]
+    }
+,   { "_term": "EBikeRide"
+    , "_synonyms": ["ride", "e-ride"]
+    }
+,   { "_term": "Elliptical"
+    , "_synonyms": ["ellipses", "elliptical movement", "elliptical"]
+    }
+,   { "_term": "Golf"
+    , "_synonyms": ["golf", "putting", "fake-sport"]
+    }
+,   { "_term": "Handcycle"
+    , "_synonyms": ["hand-ride", "handcycle", "handy"]
+    }
+,   { "_term": "Hike"
+    , "_synonyms": ["hike", "trek"]
+    }
+,   { "_term": "IceSkate"
+    , "_synonyms": ["skate", "ice skate", "skating", "ice skating", "rink-a-dink"]
+    }
+,   { "_term": "InlineSkate"
+    , "_synonyms": ["skate", "inline skating", "skating", "roller blading"]
+    }
+,   { "_term": "Kayaking"
+    , "_synonyms": ["kayaking", "boating", "kayak ride"]
+    }
+,   { "_term": "Kitesurf"
+    , "_synonyms": ["kitesurf", "kite surfing", "surfing with a kite"]
+    }
+,   { "_term": "NordicSki"
+    , "_synonyms": ["ski", "nordic ski"]
+    }
+,   { "_term": "Ride"
+    , "_synonyms": ["ride", "bicycle ride"]
+    }
+,   { "_term": "RockClimbing"
+    , "_synonyms": ["rock climbing", "climbing of the rocks", "mountaineering"]
+    }
+,   { "_term": "RollerSki"
+    , "_synonyms": ["rollerski", "ski"]
+    }
+,   { "_term": "Rowing"
+    , "_synonyms": ["rowing", "boating"]
+    }
+,   { "_term": "Run"
+    , "_synonyms": ["run", "trot"]
+    }
+,   { "_term": "Sail"
+    , "_synonyms": ["sail", "boating"]
+    }
+,   { "_term": "Skateboard"
+    , "_synonyms": ["skate", "skateboarding"]
+    }
+,   { "_term": "Snowboard"
+    , "_synonyms": ["snowboarding", "board"]
+    }
+,   { "_term": "Snowshoe"
+    , "_synonyms": ["shoe", "snow shoeing"]
+    }
+,   { "_term": "Soccer"
+    , "_synonyms": ["football"]
+    }
+,   { "_term": "StairStepper"
+    , "_synonyms": ["stair stepper", "stepper", "stairs"]
+    }
+,   { "_term": "StandUpPaddling"
+    , "_synonyms": ["paddling", "stand-up paddling"]
+    }
+,   { "_term": "Surfing"
+    , "_synonyms": ["surfing"]
+    }
+,   { "_term": "Swim"
+    , "_synonyms": ["swim", "swiming"]
+    }
+,   { "_term": "Velomobile"
+    , "_synonyms": ["velomobile", "mobiling", "bike car"]
+    }
+,   { "_term": "VirtualRide"
+    , "_synonyms": ["virtual ride", "cyber ride", "ride in cyberspace"]
+    }
+,   { "_term": "VirtualRun"
+    , "_synonyms": ["virtual run", "cyber run", "run in cyberspace"]
+    }
+,   { "_term": "Walk"
+    , "_synonyms": ["walk", "constitutional", "stroll"]
+    }
+,   { "_term": "WeightTraining"
+    , "_synonyms": ["weight training", "lifting", "pumping"]
+    }
+,   { "_term": "Wheelchair"
+    , "_synonyms": ["wheelchair", "chairing", "wheeling"]
+    }
+,   { "_term": "Windsurf"
+    , "_synonyms": ["windsurf", "surf"]
+    }
+,   { "_term": "Workout"
+    , "_synonyms": ["workout", "exercise", "the Jane Fonda"]
+    }
+,   { "_term": "Yoga"
+    , "_synonyms": ["yoga", "peace", "joy"]
+    }
+]

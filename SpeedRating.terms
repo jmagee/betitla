@@ -1,0 +1,17 @@
+[
+    { "_term": "TurtleSlow"
+    , "_synonyms": ["turtle slow", "sloth-like", "molasses", "easy-going", "turtletastic"]
+    }
+,   { "_term": "Slow"
+    , "_synonyms": ["slow", "slug-like", "laid-back", "relaxed"]
+    }
+,   { "_term": "Average"
+    , "_synonyms": ["steady", "steadfast"]
+    }
+,   { "_term": "Fast"
+    , "_synonyms": ["speedy", "fast", "quick"]
+    }
+,   { "_term": "RabbitFast"
+    , "_synonyms": ["lightning quick", "flash-like", "rabbithian", "zoomy"]
+    }
+]

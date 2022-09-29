@@ -174,3 +174,10 @@ spec = do
     prop "Transitivity" (transitivityEq :: DurationRating -> DurationRating -> DurationRating -> Bool)
     prop "Substitutivity" (substitutivity :: DurationRating -> DurationRating -> Bool)
     prop "Negation" (negation :: DurationRating -> DurationRating -> Bool)
+
+  describe "Eq SpeedRating" $ do
+    prop "Reflexivity" (reflexivity :: SpeedRating -> Bool)
+    prop "Symmetry" (symmetry :: SpeedRating -> SpeedRating -> Bool)
+    prop "Transitivity" (transitivityEq :: SpeedRating -> SpeedRating -> SpeedRating -> Bool)
+    prop "Substitutivity" (substitutivity :: SpeedRating -> SpeedRating -> Bool)
+    prop "Negation" (negation :: SpeedRating -> SpeedRating -> Bool)

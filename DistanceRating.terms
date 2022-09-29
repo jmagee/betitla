@@ -1,9 +1,9 @@
 [
     { "_term": "VeryNear"
-    , "_synonyms": ["very short", "super short", "suspiciously short", "embarassingly short"]
+    , "_synonyms": ["very near", "super near", "suspiciously not-far", "embarassingly minimal"]
     }
 ,   { "_term": "Near"
-    , "_synonyms": ["short", "not-long", "brusque", "scant", "little"]
+    , "_synonyms": ["near", "not-far", "small"]
     }
 ,   { "_term": "Medium"
     , "_synonyms": ["midsize", "medium", "middling", "modest", "reasonable"]

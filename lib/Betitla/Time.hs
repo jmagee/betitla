@@ -6,12 +6,12 @@ module Betitla.Time
 , Duration (..)
 , DurationRating (..)
 , durationToRating
-, pickDurationRatingTerm
+--, pickDurationRatingTerm
 , toSec
 , toMin
 , toHour
 , localTimeToPOD
-, pickPhaseOfDayTerm
+--, pickPhaseOfDayTerm
 ) where
 
 import           GHC.Generics
@@ -34,7 +34,9 @@ data PhaseOfDay = PreDawn
                 | LateNight
                 deriving (Show, Eq, Generic)
 
-instance Term PhaseOfDay
+instance Term PhaseOfDay where
+  --termFile = const [absfile|/Users/jmagee/src/betitla.git/PhaseOfDay.terms|]
+  termFile = const "PhaseOfDay.terms"
 instance FromJSON PhaseOfDay
 
 instance Arbitrary PhaseOfDay where
@@ -50,8 +52,8 @@ localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
   | otherwise = LateNight
 
 -- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
-pickPhaseOfDayTerm :: PhaseOfDay -> IO String
-pickPhaseOfDayTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/PhaseOfDay.terms|]
+{-pickPhaseOfDayTerm :: PhaseOfDay -> IO String-}
+{-pickPhaseOfDayTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/PhaseOfDay.terms|]-}
 
 data Duration = Seconds Int
               | Minutes Int
@@ -96,7 +98,9 @@ data DurationRating = VeryShort
                     | InsaneLong
                     deriving (Show, Eq, Generic)
 
-instance Term DurationRating
+instance Term DurationRating where
+  --termFile = const [absfile|/Users/jmagee/src/betitla.git/DurationRating.terms|]
+  termFile = const "DurationRating.terms"
 instance FromJSON DurationRating
 instance Arbitrary DurationRating where
   arbitrary = oneof $ pure <$> durationRatings
@@ -116,5 +120,5 @@ durationToRating sport dur = select dur (pickDtable sport) durationRatings
     pickDtable Golf = [Minutes 15, Minutes 30, Hours 1, Hours 2, Hours 3]
 
 -- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
-pickDurationRatingTerm :: DurationRating -> IO String
-pickDurationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DurationRating.terms|]
+--pickDurationRatingTerm :: DurationRating -> IO String
+--pickDurationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DurationRating.terms|]
