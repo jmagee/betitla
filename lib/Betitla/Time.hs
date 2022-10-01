@@ -1,17 +1,14 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes   #-}
 
 module Betitla.Time
 ( PhaseOfDay (..)
 , Duration (..)
 , DurationRating (..)
 , durationToRating
---, pickDurationRatingTerm
 , toSec
 , toMin
 , toHour
 , localTimeToPOD
---, pickPhaseOfDayTerm
 ) where
 
 import           GHC.Generics
@@ -35,7 +32,6 @@ data PhaseOfDay = PreDawn
                 deriving (Show, Eq, Generic)
 
 instance Term PhaseOfDay where
-  --termFile = const [absfile|/Users/jmagee/src/betitla.git/PhaseOfDay.terms|]
   termFile = const "PhaseOfDay.terms"
 instance FromJSON PhaseOfDay
 
@@ -99,7 +95,6 @@ data DurationRating = VeryShort
                     deriving (Show, Eq, Generic)
 
 instance Term DurationRating where
-  --termFile = const [absfile|/Users/jmagee/src/betitla.git/DurationRating.terms|]
   termFile = const "DurationRating.terms"
 instance FromJSON DurationRating
 instance Arbitrary DurationRating where
@@ -118,7 +113,3 @@ durationToRating sport dur = select dur (pickDtable sport) durationRatings
     pickDtable Hike = [Minutes 30, Hours 1, Hours 2, Hours 8, Hours 10]
     pickDtable AlpineSki = [Minutes 30, Hours 1, Hours 2, Hours 4, Hours 8]
     pickDtable Golf = [Minutes 15, Minutes 30, Hours 1, Hours 2, Hours 3]
-
--- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
---pickDurationRatingTerm :: DurationRating -> IO String
---pickDurationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DurationRating.terms|]

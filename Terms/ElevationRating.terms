@@ -3,7 +3,7 @@
     , "_synonyms": ["pancake flat", "Florida-like", "ultraflat"]
     }
 ,   { "_term": "Flat"
-    , "_synonyms": ["flat"]
+    , "_synonyms": ["flat", "level", "oblate"]
     }
 ,   { "_term": "Hilly"
     , "_synonyms": ["hilly", "rolling"]

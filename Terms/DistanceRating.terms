@@ -6,7 +6,7 @@
     , "_synonyms": ["near", "not-far", "small"]
     }
 ,   { "_term": "Medium"
-    , "_synonyms": ["midsize", "medium", "middling", "modest", "reasonable"]
+    , "_synonyms": ["midsize", "medium", "middling", "modest", "reasonable", "tidy"]
     }
 ,   { "_term": "Far"
     , "_synonyms": ["far", "immense", "great", "extended"]

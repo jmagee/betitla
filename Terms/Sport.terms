@@ -42,7 +42,7 @@
     , "_synonyms": ["ski", "nordic ski"]
     }
 ,   { "_term": "Ride"
-    , "_synonyms": ["ride", "bicycle ride"]
+    , "_synonyms": ["ride", "bicycle ride", "pedal", "cycle"]
     }
 ,   { "_term": "RockClimbing"
     , "_synonyms": ["rock climbing", "climbing of the rocks", "mountaineering"]

@@ -5,15 +5,19 @@ module Betitla.Util
 , pickAny
 , dropAny
 , mkHomePath
+, randInt
+, coinFlip
+, (?)
 ) where
 
 import           Data.Bool             (bool)
 import qualified Data.ByteString.Lazy  as BS (ByteString, null, readFile)
+import           Data.Functor          ((<&>))
 import           Data.List             (findIndex)
 import           Path                  (Abs, File, Path, toFilePath)
 import           System.Directory      (doesFileExist, getHomeDirectory)
 import           System.FilePath.Posix (pathSeparator)
-import           System.Random         (getStdGen)
+import           System.Random         (getStdGen, randomR)
 import           System.Random.Shuffle (shuffle')
 
 -- | Use a table of ordinal things to select the thing ratings.
@@ -52,3 +56,23 @@ slash a b = a ++ [pathSeparator] ++ b
 -- | Create a patch in the home directory
 mkHomePath :: FilePath -> IO FilePath
 mkHomePath x = (`slash` x) <$> getHomeDirectory
+
+-- | Generate a random integer between n and m.
+randInt :: Int -> Int -> IO Int
+randInt n m = getStdGen <&> (fst . randomR (n, m))
+
+-- | Flip for it.
+coinFlip :: IO Bool
+--coinFlip = randInt 0 1 >>= pure . (== 1)
+coinFlip = randInt 0 1 <&> (==1)
+
+-- | Functional alternative to if-then-else.
+-- See https://wiki.haskell.org/If-then-else
+if' :: Bool -> a -> a -> a
+if' True x _  = x
+if' False _ y = y
+
+-- | C-like ternary operator
+infixr 1 ?
+(?) :: Bool -> a -> a -> a
+(?) = if'

@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes   #-}
 
 module Betitla.Speed
 ( Speed (..)
@@ -8,7 +7,6 @@ module Betitla.Speed
 , toMPS
 , toKPH
 , toMPK
---, pickSpeedRatingTerm
 ) where
 
 import           Betitla.Sport
@@ -46,7 +44,7 @@ toMPK x = x
 
 instance Eq Speed where
   (KmPerHour a) == (KmPerHour b) = a == b
-  a             == b             = (toKPH a) == (toKPH b)
+  a             == b             = toKPH a == toKPH b
 
 instance Ord Speed where
   compare (KmPerHour a) (KmPerHour b) = compare a b
@@ -68,7 +66,6 @@ data SpeedRating = TurtleSlow
                  deriving (Show, Eq, Generic)
 
 instance Term SpeedRating where
-  --termFile = const [absfile|/Users/jmagee/src/betitla.git/SpeedRating.terms|]
   termFile = const "SpeedRating.terms"
 instance FromJSON SpeedRating
 instance Arbitrary SpeedRating where
@@ -88,7 +85,3 @@ speedToRating sport speed = select speed (pickDtable sport) speedRatings
     {-pickDtable Hike =-}
     {-pickDtable AlpineSki =-}
     {-pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]-}
-
--- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
---pickSpeedRatingTerm :: SpeedRating -> IO String
---pickSpeedRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/SpeedRating.terms|]

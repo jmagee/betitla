@@ -1,6 +1,7 @@
 module Betitla.Sentence
 ( Sentence (..)
 , genSentence
+, genSentence'
 , intercalateAnd
 , intercalateAndAnd
 , getAll
@@ -17,19 +18,17 @@ import           Betitla.Term
 import           Betitla.Time
 import           Betitla.Util
 
---import Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Reader   (Reader, ReaderT, ask)
-import           Data.Char              (toUpper)
+import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.Reader   (Reader, ReaderT, ask, runReaderT)
+import           Data.Char              (isSpace, toUpper)
 import           Data.List              (intersperse)
-import qualified Data.Map as M (lookup)
+import qualified Data.Map               as M (lookup)
 
 -- Sentence types
 -- "Epic ride .."
 -- Holiday activity
 -- "Long, flat, and fast activity"
-data Sentence = SentenceFour
-              | SentenceThree
-              | SentenceTwo
+data Sentence = SentenceSimple
 --              | SentenceHoliday
               deriving (Show)
 
@@ -41,25 +40,31 @@ lookupTest s = ask >>= \x -> pure $ M.lookup s x
 lookupTest' :: String -> ReaderIO Env (Maybe String)
 lookupTest' s = ask >>= \x -> pure $ M.lookup s x
 
+genSentence' :: Sentence -> ActivityRating -> IO String
+genSentence' sentence rating = getEnvRC >>= runReaderT (genSentence sentence rating)
+
 genSentence :: Sentence -> ActivityRating -> ReaderIO Env String
-genSentence SentenceTwo = genN 2
-genSentence SentenceThree = genN 3
-genSentence SentenceFour = genN 4
+genSentence SentenceSimple rating = do
+  phase <- liftIO coinFlip >>= \x -> x ? pickTerm (_phaseOfDay rating) $ pure ""
+  terms <- liftIO (randInt 3 4) >>= \r -> genN r rating
+  sport <- pickTerm $ _sport rating
+  (pure . capFirst . dropLeadingSpaces ) $ unwords [phase, terms, sport]
 
 getAll :: ActivityRating -> ReaderIO Env [String]
-getAll (ActivityRating sport distance duration elevation speed) = sequence
-  [ pickTerm speed
+getAll (ActivityRating sport distance duration elevation speed phase) = sequence
+  [ --pickTerm phase
+    pickTerm speed
   , pickTerm elevation
   , pickTerm duration
   , pickTerm distance
-  , pickTerm sport
+  --, pickTerm sport
   ]
 
 genN :: Int -> ActivityRating -> ReaderIO Env String
-genN n activity = getAll activity >>= pure . drop m >>= sentency
+genN n activity = getAll activity >>= sentency . drop m
   where
     m = 4 - n
-    sentency = pure . capFirst . intercalateAndAnd ", " ", and " " "
+    sentency = pure . {-capFirst .-} intercalateAnd ", " ", and "
 
 -- | Like intercalate but with a separate pattern for the last items.
 -- I.e. "a, b, and c".
@@ -80,3 +85,15 @@ removeTail = reverse . drop 1 . reverse
 capFirst :: [Char] -> [Char]
 capFirst (x:xs) = toUpper x : xs
 capFirst []     = []
+
+-- | Drop leading whitespace from a string
+dropLeadingSpaces :: String -> String
+dropLeadingSpaces = dropWhile isSpace
+
+{--- | Apply something to the start of the sentence-}
+{-applyPrefix :: [Char] -> [Char] -> [Char]-}
+{-applyPrefix prefix sentence = prefix ++ " " ++ sentence-}
+
+{--- | Add sport type-}
+{-applySport  :: [Char] -> [Char] -> [Char]-}
+{-applySport sport sentence = sentence ++ " " ++ sport-}

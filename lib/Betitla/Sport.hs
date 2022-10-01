@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes   #-}
 
 module Betitla.Sport
 ( Sport (..)
@@ -54,6 +53,5 @@ data Sport = AlpineSki
            deriving (Show, Generic, Eq)
 
 instance Term Sport where
-  --termFile = const [absfile|/Users/jmagee/src/betitla.git/Sport.terms|]
   termFile = const "Sport.terms"
 instance FromJSON Sport

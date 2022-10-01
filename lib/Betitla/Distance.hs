@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes   #-}
 
 module Betitla.Distance
 ( Distance (..)
@@ -10,11 +9,8 @@ module Betitla.Distance
 , elevationToRating
 , toMeters
 , toKm
---, pickDistanceRatingTerm
---, pickElevationRatingTerm
 ) where
 
-import           GHC.Generics
 
 import           Betitla.Sport
 import           Betitla.Term
@@ -22,6 +18,7 @@ import           Betitla.TermTable
 import           Betitla.Util
 
 import           Data.Aeson                (FromJSON)
+import           GHC.Generics              (Generic)
 import           Path                      (Abs, File, Path, absfile)
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
@@ -60,7 +57,6 @@ data DistanceRating = VeryNear
                     deriving (Show, Eq, Generic)
 
 instance Term DistanceRating where
-  --termFile = const [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
   termFile = const "DistanceRating.terms"
 instance FromJSON DistanceRating
 instance Arbitrary DistanceRating where
@@ -83,10 +79,6 @@ distanceToRating sport dist = select dist (pickDtable sport) distanceRatings
     pickDtable AlpineSki = Kilometers <$> [1, 5, 10, 20, 30]
     pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]
 
--- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
---pickDistanceRatingTerm :: DistanceRating -> IO String
---pickDistanceRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/DistanceRating.terms|]
-
 data Elevation = MetersGained Int
                deriving (Show, Eq, Ord)
 
@@ -101,7 +93,6 @@ data ElevationRating = PancakeFlat
                      deriving (Show, Eq, Generic)
 
 instance Term ElevationRating where
-  --termFile = const [absfile|/Users/jmagee/src/betitla.git/ElevationRating.terms|]
   termFile = const "ElevationRating.terms"
 instance FromJSON ElevationRating
 instance Arbitrary ElevationRating where
@@ -116,7 +107,3 @@ elevationToRating sport elevation dist = select (metersPerKm elevation dist) (pi
     metersPerKm (MetersGained m) (Kilometers km) = m `div` km
     metersPerKm x y = metersPerKm x (toKm y)
     pickDtable Ride = [1, 4, 10, 20]
-
--- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
---pickElevationRatingTerm :: ElevationRating -> IO String
---pickElevationRatingTerm = pickRatingTerm [absfile|/Users/jmagee/src/betitla.git/ElevationRating.terms|]
