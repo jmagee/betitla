@@ -30,7 +30,7 @@ data StriverT f =
           , _striverId            :: Columnar f Int32
           , _striverAccessToken   :: Columnar f Text
           , _striverRefreshToken  :: Columnar f Text
-          , _striverExpiration    :: Int64
+          , _striverExpiration    :: Columnar f Int64
           --, _accessToken   :: Columnar f AccessToken
           --, _procActivites :: Columnar f (Seq Integer)  -- do we even need this one?  maybe not
           } deriving (Generic, Beamable)
