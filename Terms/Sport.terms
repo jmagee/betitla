@@ -9,7 +9,7 @@
     , "_synonyms": ["canoe ride", "canoeing", "boating"]
     }
 ,   { "_term": "Crossfit"
-    , "_synonyms": ["crossfit"]
+    , "_synonyms": ["crossfit", "fitness of the cross"]
     }
 ,   { "_term": "EBikeRide"
     , "_synonyms": ["ride", "e-ride"]

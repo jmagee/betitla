@@ -38,15 +38,21 @@ library:
   dependencies:
     - QuickCheck
     - aeson
+    - beam-core
+    - beam-sqlite
     - bytestring
     - containers
     - directory
     - filepath
+    - http-client
     - mtl
     - path
     - random
     - random-shuffle
-    - strive
+    - sqlite-simple
+    - string-conversions
+    - strive >= 6.0.0.4
+    - text
     - time
     - transformers
 
