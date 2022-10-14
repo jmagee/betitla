@@ -3,7 +3,6 @@ module Betitla.Sentence
 , genSentence
 , genSentence'
 , intercalateAnd
-, intercalateAndAnd
 , getAll
 , lookupTest
 , lookupTest'
@@ -73,8 +72,8 @@ intercalateAnd join1 join2 list = concat $ intersperse join1 (removeTail list) +
 
 -- Like intercalateAnd, but with an additional join pattern.
 -- I.e. "a, b, and c; but d"
-intercalateAndAnd :: [a] -> [a] -> [a] -> [[a]] -> [a]
-intercalateAndAnd join1 join2 join3 list = intercalateAnd join1 join2 (removeTail list) ++ concat [join3, last list]
+{-intercalateAndAnd :: [a] -> [a] -> [a] -> [[a]] -> [a]-}
+{-intercalateAndAnd join1 join2 join3 list = intercalateAnd join1 join2 (removeTail list) ++ concat [join3, last list]-}
 
 -- | Remove the tail of a list.
 -- Many ways to skin this cat.  This is not the most effecient.

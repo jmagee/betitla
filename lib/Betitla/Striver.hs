@@ -5,6 +5,7 @@ module Betitla.Striver
 , AuthCode (..)
 , AppId (..)
 , AccessToken (..)
+, buildAccessToken
 , getSecretToken
 , getAppId
 , getAccessToken

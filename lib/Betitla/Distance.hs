@@ -79,7 +79,7 @@ distanceToRating sport dist = select dist (pickDtable sport) distanceRatings
     pickDtable AlpineSki = Kilometers <$> [1, 5, 10, 20, 30]
     pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]
 
-data Elevation = MetersGained Int
+newtype Elevation = MetersGained Int
                deriving (Show, Eq, Ord)
 
 instance Arbitrary Elevation where

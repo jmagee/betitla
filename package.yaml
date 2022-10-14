@@ -45,6 +45,7 @@ library:
     - directory
     - filepath
     - http-client
+    - lens
     - mtl
     - path
     - random
@@ -79,4 +80,7 @@ tests:
     dependencies:
     - QuickCheck
     - betitla
+    - directory
+    - lens
     - hspec
+    - time
