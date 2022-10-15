@@ -15,6 +15,8 @@
 module Betitla.Db
 ( Striver
 , StriverT (..)
+, Activity
+, ActivityT (..)
 , BetitlaDb (..)
 , betitlaDb
 , createDbHandle
@@ -22,11 +24,17 @@ module Betitla.Db
 , addStriverToDb
 , selectStriverFromDb
 , withDb
-, dbgDumpDb
+, dbgDumpStrivers
+, dbgDumpActivities
 , updateStriverInDb
 , deleteStriverFromDb
+, addActivityToDb
+, selectActivitiesFromDb
+, selectActivityFromDb
+, activityId
 ) where
 
+import           Betitla.AccessToken
 import           Betitla.Error
 import           Betitla.Lenses
 import           Betitla.Striver
@@ -53,6 +61,7 @@ import           GHC.Generics            (Generic)
 import           System.Directory        (doesFileExist)
 
 -- | Database table data for a single "Striver".
+-- This records the striver ID, access and refresh tokens, and the refresh token expiration
 data StriverT f =
   Striver { _striverId            :: Columnar f Int32
           , _striverAccessToken   :: Columnar f Text
@@ -75,8 +84,28 @@ instance Table StriverT where
                              deriving (Generic, Beamable)
   primaryKey = StriverKey . _striverId
 
-newtype BetitlaDb f =
-  BetitlaDb { _strivers  :: f (TableEntity StriverT)
+-- | Database table data for striver activities.
+data ActivityT f =
+  Activity   { _activityStriverId  :: Columnar f Int32
+             , _activityId         :: Columnar f Int32
+             } deriving (Generic, Beamable)
+
+Activity (LensFor activityStriverId) (LensFor activityId) = tableLenses
+
+type Activity = ActivityT Identity
+type ActivityKey = PrimaryKey ActivityT Identity
+
+deriving instance Show Activity
+deriving instance Eq Activity
+
+instance Table ActivityT where
+  data PrimaryKey ActivityT f = ActivityKey (Columnar f Int32)
+                                deriving (Generic, Beamable)
+  primaryKey = ActivityKey . _activityId
+
+data BetitlaDb f =
+  BetitlaDb { _strivers   :: f (TableEntity StriverT)
+            , _activities :: f (TableEntity ActivityT)
             } deriving (Generic, Database Sqlite)
 
 betitlaDb :: DatabaseSettings Sqlite BetitlaDb
@@ -85,12 +114,16 @@ betitlaDb = defaultDbSettings
 striversTable :: DatabaseEntity Sqlite BetitlaDb (TableEntity StriverT)
 striversTable = _strivers betitlaDb
 
-everything :: Q Sqlite BetitlaDb s (StriverT (QExpr Sqlite s))
-everything = all_ striversTable
+activitiesTable :: DatabaseEntity Sqlite BetitlaDb (TableEntity ActivityT)
+activitiesTable = _activities betitlaDb
+
+allStrivers :: Q Sqlite BetitlaDb s (StriverT (QExpr Sqlite s))
+allStrivers = all_ striversTable
+
+allActivities :: Q Sqlite BetitlaDb s (ActivityT (QExpr Sqlite s))
+allActivities = all_ activitiesTable
 
 striverFromBits :: AccessToken -> Integer -> Striver
---striverFromBits (AccessToken access refresh (MkSystemTime seconds _)) sid =
-  --Striver (fromInteger sid) (cs access) (cs refresh) seconds
 striverFromBits token sid =
   Striver (fromInteger sid)
           (cs $ token ^. access)
@@ -98,7 +131,7 @@ striverFromBits token sid =
           (systemSeconds $ token ^. expiration)
 
 accessTokenFromStriver :: Striver -> AccessToken
-accessTokenFromStriver striver = 
+accessTokenFromStriver striver =
   buildAccessToken (striver ^. striverAccessToken)
                    (striver ^. striverRefreshToken)
                    (toInteger $ striver ^. striverExpiration)
@@ -122,8 +155,10 @@ createDbHandle file =
     createAndOpen f = do
       conn <- open f
       execute_ conn query
+      execute_ conn query2
       pure conn
     query = "CREATE TABLE IF NOT EXISTS strivers (id INT32, access_token VARCHAR NOT NULL, refresh_token VARCHAR NOT NULL, expiration INT64, primary key(id))"
+    query2 = "CREATE TABLE IF NOT EXISTS activities (striver_id INT32, id INT32, primary key(id))"
 
 addStriverToDb :: MonadBeam Sqlite m => AccessToken -> Integer ->  m ()
 addStriverToDb at sid = addStriverToDb' (striverFromBits at sid)
@@ -144,7 +179,7 @@ selectStriverFromDb sid =
 selectStriverFromDb' :: MonadBeam Sqlite m => Int32 -> m [Striver]
 selectStriverFromDb' sid =
   runSelectReturningList $ select $ do
-    strivers <- everything
+    strivers <- allStrivers
     guard_ (val_ sid ==. _striverId strivers)
     pure strivers
 
@@ -161,7 +196,45 @@ deleteStriverFromDb' :: MonadBeam Sqlite m => Int32 -> m ()
 deleteStriverFromDb' sid =
   runDelete $
     delete striversTable
-           (\x -> _striverId x ==. val_ sid)
+           (\x -> x ^. striverId ==. val_ sid)
 
-dbgDumpDb :: MonadBeam Sqlite m => m [Striver]
-dbgDumpDb = runSelectReturningList $ select everything
+dbgDumpStrivers :: MonadBeam Sqlite m => m [Striver]
+dbgDumpStrivers = runSelectReturningList $ select allStrivers
+
+addActivityToDb :: MonadBeam Sqlite m => Integer -> Integer -> m ()
+addActivityToDb sid aid =
+  runInsert $
+    insert activitiesTable $
+      insertValues [ Activity (fromInteger sid) (fromInteger aid) ]
+
+selectActivitiesFromDb :: MonadBeam Sqlite m => Integer -> m (Either Error [Activity])
+selectActivitiesFromDb sid = extractEither <$> selectActivitiesFromDb' (fromInteger sid)
+  where
+    extractEither [] = Left $ errorFromString DBNotFoundError $ "ID " ++ show sid
+    extractEither x  = Right x
+
+selectActivitiesFromDb' :: MonadBeam Sqlite m => Int32 -> m [Activity]
+selectActivitiesFromDb' sid =
+  runSelectReturningList $ select $ do
+    activities <- allActivities
+    guard_ (val_ sid ==. activities ^. activityStriverId)
+    pure activities
+
+-- | Select a single activity by activity ID.
+selectActivityFromDb :: MonadBeam Sqlite m => Integer -> m (Either Error Activity)
+selectActivityFromDb sid =
+  extractEither <$> selectActivityFromDb' (fromInteger sid)
+  where
+    extractEither [] = Left $ errorFromString DBNotFoundError $ "ID " ++ show sid
+    extractEither [x] = Right x
+    extractEither x@(_:_) = Left $ errorFromString DBDuplicateError $ show x
+
+selectActivityFromDb' :: MonadBeam Sqlite m => Int32 -> m [Activity]
+selectActivityFromDb' sid =
+  runSelectReturningList $ select $ do
+    activities <- allActivities
+    guard_ (val_ sid ==. activities ^. activityId)
+    pure activities
+
+dbgDumpActivities :: MonadBeam Sqlite m => m [Activity]
+dbgDumpActivities = runSelectReturningList $ select allActivities

@@ -31,7 +31,7 @@ testStrive = do
 
 testStrive' :: IO ()
 testStrive' = do
-  let authorizeUrl = buildAuthorizeUrl 94899 {-1790-} "http://localhost" $ with [ set approvalPrompt False , set readScope True , set activityReadAllScope True] --, set state "..."]
+  let authorizeUrl = buildAuthorizeUrl 94899 {-1790-} "http://localhost" $ with [ set approvalPrompt False , set readScope True , set readAllScope True, set activityReadAllScope True , set activityWriteScope True] --, set state "..."]
   --print $ (authorizeUrl :: String) ++ "&scope=activity:read"
   print (authorizeUrl :: String)
 

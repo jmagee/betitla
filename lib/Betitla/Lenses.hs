@@ -6,7 +6,7 @@ module Betitla.Lenses
 , expiration
 ) where
 
-import           Betitla.Striver
+import           Betitla.AccessToken
 
 import           Control.Lens    (makeLenses)
 
