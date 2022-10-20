@@ -7,6 +7,7 @@ module Betitla.Util
 , mkHomePath
 , randInt
 , coinFlip
+, tshow
 , (?)
 ) where
 
@@ -14,11 +15,13 @@ import           Data.Bool             (bool)
 import qualified Data.ByteString.Lazy  as BS (ByteString, null, readFile)
 import           Data.Functor          ((<&>))
 import           Data.List             (findIndex)
+import           Data.Text             (Text)
 import           Path                  (Abs, File, Path, toFilePath)
 import           System.Directory      (doesFileExist, getHomeDirectory)
 import           System.FilePath.Posix (pathSeparator)
 import           System.Random         (getStdGen, randomR)
 import           System.Random.Shuffle (shuffle')
+import           Witch                 (into)
 
 -- | Use a table of ordinal things to select the thing ratings.
 --select :: Distance -> [Distance] -> [DistanceRating] -> DistanceRating
@@ -65,6 +68,10 @@ randInt n m = getStdGen <&> (fst . randomR (n, m))
 coinFlip :: IO Bool
 --coinFlip = randInt 0 1 >>= pure . (== 1)
 coinFlip = randInt 0 1 <&> (==1)
+
+-- | Show for Text
+tshow :: Show a => a -> Text
+tshow = into . show
 
 -- | Functional alternative to if-then-else.
 -- See https://wiki.haskell.org/If-then-else

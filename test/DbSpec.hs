@@ -1,10 +1,12 @@
---{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleContexts      #-}
 module DbSpec (spec) where
 
+import           Betitla.AccessToken
 import           Betitla.Db
 import           Betitla.Error
 import           Betitla.Lenses
 import           Betitla.Striver
+import           Betitla.StriverIds
 
 import           Control.Lens.Getter    ((^.))
 import           Control.Lens.Setter    ((.~))
@@ -28,14 +30,26 @@ spec = do
       exists <- doesFileExist testDbName
       exists `shouldBe` False
 
+  describe "no striver" $
+    let existanceTest = doesStriverExistInDb $ AthleteId 1
+    in it "succesfully" $ do
+      result <- withDb testDbName existanceTest
+      result `shouldBe` False
+
   describe "inserts striver" $
-    let insertTest = addStriverToDb testToken 1 >> selectStriverFromDb 1
+    let insertTest = addStriverToDb testToken (AthleteId 1) >> selectStriverFromDb (AthleteId 1)
     in it "succesfully" $ do
       result <- withDb testDbName insertTest
       isRight result `shouldBe` True
 
+  describe "yes striver" $
+    let existanceTest = doesStriverExistInDb $ AthleteId 1
+    in it "succesfully" $ do
+      result <- withDb testDbName existanceTest
+      result `shouldBe` True
+
   describe "selects striver" $
-    let selectTest = selectStriverFromDb 1
+    let selectTest = selectStriverFromDb $ AthleteId 1
     in it "succesfully" $ do
       result <- withDb testDbName selectTest
       case result of
@@ -44,7 +58,7 @@ spec = do
 
   describe "updates striver" $
     let newToken = access .~ "babecafe" $ testToken
-        updateTest = updateStriverInDb newToken 1 >> selectStriverFromDb 1
+        updateTest = updateStriverInDb newToken (AthleteId 1) >> selectStriverFromDb (AthleteId 1)
     in it "succesfully" $ do
       result <- withDb testDbName updateTest
       case result of
@@ -52,19 +66,31 @@ spec = do
         Right x -> accessTokenFromStriver x ^. access `shouldBe` "babecafe"
 
   describe "deletes striver" $
-    let deleteTest = deleteStriverFromDb 1 >> selectStriverFromDb 1
+    let deleteTest = deleteStriverFromDb (AthleteId 1) >> selectStriverFromDb (AthleteId 1)
     in it "succesfully" $ do
       result <- withDb testDbName deleteTest
       isLeft result `shouldBe` True
 
+  describe "no activity" $
+    let existanceTest = doesActivityExistInDb (ActivityId 2)
+    in it "succesfully" $ do
+      result <- withDb testDbName existanceTest
+      result `shouldBe` False
+
   describe "inserts activity" $
-    let insertTest = addActivityToDb 1 2 >> selectActivitiesFromDb 1
+    let insertTest = addActivityToDb (AthleteId 1) (ActivityId 2) >> selectActivitiesFromDb (AthleteId 1)
     in it "succesfully" $ do
       result <- withDb testDbName insertTest
       isRight result `shouldBe` True
 
+  describe "yes activity" $
+    let existanceTest = doesActivityExistInDb (ActivityId 2)
+    in it "succesfully" $ do
+      result <- withDb testDbName existanceTest
+      result `shouldBe` True
+
   describe "selects activity" $
-    let selectTest = selectActivitiesFromDb 1
+    let selectTest = selectActivitiesFromDb (AthleteId 1)
     in it "succesfully" $ do
       result <- withDb testDbName selectTest
       case result of
@@ -72,7 +98,8 @@ spec = do
         Right x -> length x `shouldBe` 1
 
   describe "selects activities" $
-    let selectTest = mapM_ (addActivityToDb 1) [3..101] >> selectActivitiesFromDb 1
+    let addAct x = addActivityToDb (AthleteId 1) (ActivityId x)
+        selectTest = mapM_ addAct [3..101] >> selectActivitiesFromDb (AthleteId 1)
     in it "succesfully" $ do
       result <- withDb testDbName selectTest
       case result of
@@ -80,7 +107,7 @@ spec = do
         Right x -> length x `shouldBe` 100
 
   describe "selects activity by activity id" $
-    let selectTest = selectActivityFromDb 3
+    let selectTest = selectActivityFromDb (ActivityId 3)
     in it "succesfully" $ do
       result <- withDb testDbName selectTest
       case result of
