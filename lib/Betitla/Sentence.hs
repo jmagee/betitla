@@ -9,14 +9,16 @@ module Betitla.Sentence
 ) where
 
 import           Betitla.ActivityRating
-import           Betitla.Distance
+--import           Betitla.Distance
 import           Betitla.Env
-import           Betitla.Speed
-import           Betitla.Sport
+import           Betitla.Lenses
+--import           Betitla.Speed
+--import           Betitla.Sport
 import           Betitla.Term
-import           Betitla.Time
+--import           Betitla.Time
 import           Betitla.Util
 
+import           Control.Lens.Getter    ((^.))
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Reader   (Reader, ReaderT, ask, runReaderT)
 import           Data.Char              (isSpace, toUpper)
@@ -44,18 +46,19 @@ genSentence' sentence rating = getEnvRC >>= runReaderT (genSentence sentence rat
 
 genSentence :: Sentence -> ActivityRating -> ReaderIO Env String
 genSentence SentenceSimple rating = do
-  phase <- liftIO coinFlip >>= \x -> x ? pickTerm (_phaseOfDay rating) $ pure ""
+  phase <- liftIO coinFlip >>= \x -> x ? pickTerm (rating ^. phaseOfDay) $ pure ""
   terms <- liftIO (randInt 3 4) >>= \r -> genN r rating
-  sport <- pickTerm $ _sport rating
-  (pure . capFirst . dropLeadingSpaces ) $ unwords [phase, terms, sport]
+  sprt  <- pickTerm $ rating ^. sport
+  (pure . capFirst . dropLeadingSpaces ) $ unwords [phase, terms, sprt]
 
 getAll :: ActivityRating -> ReaderIO Env [String]
-getAll (ActivityRating sport distance duration elevation speed phase) = sequence
+--getAll (ActivityRating sport distance duration elevation speed phase) = sequence
+getAll activity = sequence
   [ --pickTerm phase
-    pickTerm speed
-  , pickTerm elevation
-  , pickTerm duration
-  , pickTerm distance
+    pickTerm $ activity ^. speedRating
+  , pickTerm $ activity ^. elevationRating
+  , pickTerm $ activity ^. durationRating
+  , pickTerm $ activity ^. distanceRating
   --, pickTerm sport
   ]
 

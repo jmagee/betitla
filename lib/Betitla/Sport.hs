@@ -9,9 +9,6 @@ import           Betitla.Util
 
 import           Data.Aeson                (FromJSON)
 import           GHC.Generics              (Generic)
-import           Path                      (Abs, File, Path, absfile)
-import           Test.QuickCheck           (Gen, oneof)
-import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
 
 data Sport = AlpineSki
            | BackcountrySki

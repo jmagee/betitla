@@ -15,6 +15,7 @@ data Error = StriveError Text
            | DBDuplicateError Text
            | DBNotFoundError Text
            | DBError Text
+           | BErrorNotNew Text
            deriving (Show)
 
 instance Display Error where
@@ -22,6 +23,7 @@ instance Display Error where
   display (DBDuplicateError s) = "Duplicate entry in database: " `append` s
   display (DBNotFoundError s) = "Entry not found in database: " `append` s
   display (DBError s) = "Database error: " `append` s
+  display (BErrorNotNew s) = "Betitla error, activity has already been processed: " `append` s
 
 errorFromString :: (Text -> Error) -> String -> Error
 errorFromString cons = cons . cs

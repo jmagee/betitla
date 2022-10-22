@@ -8,7 +8,7 @@ module Betitla.StriverIds
 ) where
 
 import           Data.Int (Int64)
-import           Witch    (From, TryFrom, from, tryFrom, unsafeInto)
+import           Witch    (From, from, unsafeInto)
 
 newtype AthleteId = AthleteId Int64
                   deriving (Show)
@@ -24,3 +24,6 @@ newtype ActivityId = ActivityId Int64
 
 instance From ActivityId Int64 where
   from (ActivityId x) = x
+
+instance From ActivityId Integer where
+  from (ActivityId x) = from x

@@ -5,10 +5,9 @@ module Betitla.Env
 
 import           Betitla.Util
 
-import           Data.Aeson            (FromJSON, Value (..), eitherDecode',
-                                        parseJSON)
-import           Data.Map              (Map, empty)
-import           Path                  (Abs, File, Path, parseAbsFile)
+import           Data.Aeson   (eitherDecode')
+import           Data.Map     (Map, empty)
+import           Path         (Abs, File, Path, parseAbsFile)
 
 type Env = Map String String
 

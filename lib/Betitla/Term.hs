@@ -11,10 +11,10 @@ import           Betitla.Env
 import           Betitla.TermTable
 
 import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Reader   (Reader, ReaderT, asks)
+import           Control.Monad.Reader   (ReaderT, asks)
 import           Data.Aeson             (FromJSON)
 import qualified Data.Map               as M (lookup)
-import           Path                   (Abs, File, Path, parseAbsFile)
+import           Path                   (parseAbsFile)
 
 type ReaderIO a b = ReaderT a IO b
 

@@ -7,7 +7,7 @@ module Betitla
 ) where
 
 
-import           Data.Time          (NominalDiffTime, UTCTime (..))
+import           Data.Time          (UTCTime (..))
 import           Data.Time.Calendar (fromGregorian)
 import           Strive
 

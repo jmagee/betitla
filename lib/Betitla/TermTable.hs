@@ -10,14 +10,12 @@ module Betitla.TermTable
 
 import           Betitla.Util
 
-import           Data.Aeson    (FromJSON, Value (..), eitherDecode', parseJSON,
-                                (.:))
+import           Data.Aeson    (FromJSON, eitherDecode')
 import           Data.Maybe    (fromMaybe)
 import           Data.Sequence (Seq (..), findIndexL)
 import qualified Data.Sequence as S (length, lookup)
 import           GHC.Generics  (Generic)
 import           Path          (Abs, File, Path)
-import           System.Random (getStdGen, randomR)
 
 data TermTableEntry a =
   TermTableEntry { _term     :: a

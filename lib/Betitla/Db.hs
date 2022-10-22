@@ -13,6 +13,9 @@
 --[># LANGUAGE TypeSynonymInstances  #<]
 {-# LANGUAGE TypeApplications      #-}
 
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
+-- ^ tableLenses signatures seem problematic to express
+
 module Betitla.Db
 ( Striver
 , StriverT (..)
@@ -44,7 +47,7 @@ import           Betitla.StriverIds
 
 import           Control.Lens.Getter     ((^.))
 import           Data.Functor.Identity   (Identity)
-import           Data.Int                (Int32, Int64)
+import           Data.Int                (Int64)
 import           Data.String.Conversions (cs)
 import           Data.Text               (Text)
 import           Data.Time.Clock.System  (SystemTime (..))
