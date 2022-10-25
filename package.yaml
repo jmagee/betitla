@@ -47,6 +47,7 @@ library:
     - http-client
     - lens
     - mtl
+    - parsec
     - path
     - random
     - random-shuffle

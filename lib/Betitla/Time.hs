@@ -4,22 +4,33 @@ module Betitla.Time
 ( PhaseOfDay (..)
 , Duration (..)
 , DurationRating (..)
+, CalDay (..)
 , durationToRating
 , toSec
 , toMin
 , toHour
 , localTimeToPOD
+, textToTimeZone
+, utcToCal
+, localTimeToCal
 ) where
 
-import           GHC.Generics
 
 import           Betitla.Sport
 import           Betitla.Term
 import           Betitla.Util
 
+import Data.Time.Clock (UTCTime, utctDay)
+import Data.Time.Calendar (toGregorian)
 import           Data.Aeson                (FromJSON)
-import           Data.Time.LocalTime       (LocalTime (..), TimeOfDay (..))
+import           Data.Either               (fromRight)
+import           Data.Time.LocalTime       (LocalTime (..), TimeOfDay (..),
+                                            TimeZone (..))
+import           GHC.Generics              (Generic)
 import           Path                      (Abs, File, absfile)
+import           Text.Parsec               (Parsec, anyChar, char, choice,
+                                            count, digit, many, parse, spaces,
+                                            string)
 
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
@@ -38,6 +49,31 @@ instance FromJSON PhaseOfDay
 instance Arbitrary PhaseOfDay where
   arbitrary = oneof $ pure <$> [PreDawn, Morning, Afternoon, Evening, LateNight]
 
+data Holidays = Halloween
+              | Christmas
+              | GroundHogsDay
+              | ValentinesDay
+              | NewYearsEve
+              | NewYearsDay
+              | CincoDeMayo
+              | Juneteenth
+              | BastilleDay
+              | MemorialDay
+              | LaborDay
+              | FourthOfJuly
+              | ThanksgivingUS
+              | ThanksgivingCanada
+              deriving (Show, Eq, Generic)
+
+data CalDay =
+  CalDay { _year  :: Integer
+         , _month :: Int
+         , _day   :: Int
+         } deriving (Show, Eq)
+
+calDayFromTriple :: (Integer, Int, Int) -> CalDay
+calDayFromTriple (a, b, c) = CalDay a b c
+
 localTimeToPOD :: LocalTime -> PhaseOfDay
 localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
   | hour < 3  = LateNight
@@ -46,6 +82,26 @@ localTimeToPOD (LocalTime _ (TimeOfDay hour _ _))
   | hour < 18 = Afternoon
   | hour < 9  = Evening
   | otherwise = LateNight
+
+-- | "get-the-job-done" function to convert a "GMT+-XX:XXX" string into a timezone.
+-- E.g. "(GMT-08:00) America/Los_Angeles"
+textToTimeZone :: String -> TimeZone
+textToTimeZone s = fromRight (TimeZone 0 False "") $ parse utcInfo s s
+  where
+    utcInfo = do
+      _ <- char '('
+      _ <- string "GMT"
+      p <- choice [char '-', char '+']
+      h <- count 2 digit
+      _ <- char ':'
+      m <- count 2 digit
+      _ <- char ')'
+      _ <- spaces
+      rest <- many anyChar
+      let hours   = read h :: Int
+          minutes = read m :: Int
+          sign    = if p == '+' then 1 else (-1)
+      pure $ TimeZone (sign * hours * 60 + minutes) False rest
 
 -- | Pick a DistanceRating from the DistanceRating.terms file which is read at runtime.
 {-pickPhaseOfDayTerm :: PhaseOfDay -> IO String-}
@@ -113,3 +169,9 @@ durationToRating sport dur = select dur (pickDtable sport) durationRatings
     pickDtable Hike = [Minutes 30, Hours 1, Hours 2, Hours 8, Hours 10]
     pickDtable AlpineSki = [Minutes 30, Hours 1, Hours 2, Hours 4, Hours 8]
     pickDtable Golf = [Minutes 15, Minutes 30, Hours 1, Hours 2, Hours 3]
+
+utcToCal :: UTCTime -> CalDay
+utcToCal = calDayFromTriple . toGregorian . utctDay
+
+localTimeToCal :: LocalTime -> CalDay
+localTimeToCal = calDayFromTriple . toGregorian . localDay

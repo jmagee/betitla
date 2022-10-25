@@ -6,7 +6,7 @@
     , "_synonyms": ["slow", "slug-like", "laid-back", "relaxed"]
     }
 ,   { "_term": "Average"
-    , "_synonyms": ["steady", "steadfast"]
+    , "_synonyms": ["steady", "steadfast", "cruising"]
     }
 ,   { "_term": "Fast"
     , "_synonyms": ["speedy", "fast", "quick"]

@@ -1,5 +1,6 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications  #-}
 
 module Betitla.Striver
 ( ClientSecret (..)
@@ -19,21 +20,23 @@ module Betitla.Striver
 , refreshUser
 , removeUser
 , isActivityNew
---, updateActivityTitle
 , newActivityTitle
---, appendObnoxiousDescription
 , getAppInfo
-
-, getActivityDescription
---, updateActivityDescription
+, extractActivityRating
+, doIKnowYou
 ) where
 
 import           Betitla.AccessToken
+import           Betitla.ActivityRating
 import           Betitla.Db
+import           Betitla.Distance
 import           Betitla.Env
 import           Betitla.Error
 import           Betitla.Lenses
+import           Betitla.Speed
+import           Betitla.Sport
 import           Betitla.StriverIds
+import           Betitla.Time
 import           Betitla.Util
 
 import           Control.Applicative        (liftA3)
@@ -46,13 +49,18 @@ import           Control.Monad.Trans.Either (hoistEither, newEitherT,
 import           Data.Bifunctor             (bimap)
 import           Data.ByteString.Lazy       (ByteString)
 import           Data.Functor               ((<&>))
-import qualified Data.Map                   as M (lookup)
+import qualified Data.Map              as M (lookup)
 import           Data.Maybe                 (fromMaybe)
 import           Data.Text                  (Text, append)
+import           Data.Time.LocalTime        (utcToLocalTime)
 import           Network.HTTP.Client        (Response)
 import           Path                       (Abs, File, Path, parseAbsFile,
                                              toFilePath)
-import qualified Strive                     as S (description, id, name)
+import qualified Strive                as S (ActivityType (..),
+                                             averageSpeed, description,
+                                             distance, id, movingTime,
+                                             name, startDate, timezone,
+                                             totalElevationGain, type_)
 import           Strive                     (ActivityDetailed, AthleteSummary,
                                              Client, Result,
                                              TokenExchangeResponse, accessToken,
@@ -62,7 +70,7 @@ import           Strive                     (ActivityDetailed, AthleteSummary,
                                              getCurrentAthleteSummary,
                                              refreshExchangeToken, refreshToken,
                                              updateActivity, with)
-import           Witch                      (from)
+import           Witch                      (from, unsafeFrom)
 
 type ReaderIO a b = ReaderT a IO b
 
@@ -127,26 +135,12 @@ refreshAccessToken (AppId appId) (ClientSecret secret) token =
             (^. refreshToken)
             (^. expiresAt))
 
--- | Update an activity with a new title on Strive.
-{-updateActivityTitle :: MonadIO m => AccessToken -> ActivityId -> Text -> m (Either Error Text)-}
-{-updateActivityTitle token act newTitle = do-}
-  {-client <- liftIO $ buildClient' $ from $ token ^. access-}
-  {-liftIO $ updateActivity client (from act) (with [set S.name (Just $ from newTitle)]) <&>-}
-    {-bimap propagateStriveError (^. S.name)-}
-
 -- | Get the description for an activity.
 getActivityDescription :: MonadIO m => AccessToken -> ActivityId -> m (Either Error Text)
 getActivityDescription token act = do
   client  <- liftIO $ buildClient' $ from $ token ^. access
   liftIO $ getActivityDetailed client (from act) (with [set allEfforts True]) <&>
     bimap propagateStriveError (fromMaybe "" . (^. S.description))
-
-{--- | Update the activity description.-}
-{-updateActivityDescription :: MonadIO m => AccessToken -> ActivityId -> Text -> m (Either Error Text)-}
-{-updateActivityDescription token act newDesc = do-}
-  {-client <- liftIO $ buildClient' $ from $ token ^. access-}
-  {-liftIO $ updateActivity client (from act) (with [set S.name (Just "Constitutional Run"), set S.description (Just $ from newDesc)]) <&>-}
-    {-bimap propagateStriveError (flattenMaybeText . (^. S.description))-}
 
 -- | Update an activity with a new title on Strive.
 -- Title and description are updated in one request.  The main reason for this
@@ -161,19 +155,6 @@ updateActivityTitleAndDesc token act newTitle newDesc = do
                                                   ]) <&>
     bimap propagateStriveError (^. S.name)
 
-{--- | Append an obnoxious advert in the description.-}
-{-appendObnoxiousDescription :: AccessToken -> ActivityId -> Text -> IO (Either Error Text)-}
-{-appendObnoxiousDescription token act slogan = runEitherT $ do-}
-  {-oldDesc <- newEitherT $ getActivityDescription token act-}
-  {-let newDesc = oldDesc `append` slogan-}
-  {-newEitherT $ updateActivityDescription token act newDesc-}
-
-  {-client  <- buildClient' $ from $ token ^. access-}
-  {-fullAct <- getActivityDetailed client (from act) (with [set allEfforts True])-}
-  {-let oldDesc = fullAct <&> (^. S.description)-}
-  {-let newDesc = oldDesc `append` "\n\n" `append` slogan-}
-  {-pure $ Right "foo"-}
-
 -- | Rename the activity title and record it in the database
 newActivityTitle :: AccessToken
                  -> ActivityId
@@ -183,7 +164,7 @@ newActivityTitle :: AccessToken
 newActivityTitle token act athlete newTitle = getSlogan >>= \slogan ->
   runEitherT $ do
     isNew        <- newEitherT $ isActivityNew act
-    hoistEither $ newGuard isNew
+    newGuard_ isNew
     oldDesc      <- newEitherT $ getActivityDescription token act
     updatedTitle <- newEitherT $
                       updateActivityTitleAndDesc token act newTitle $
@@ -191,8 +172,7 @@ newActivityTitle token act athlete newTitle = getSlogan >>= \slogan ->
     _            <- newEitherT $ recordActivity athlete act
     pure updatedTitle
   where
-    newGuard False = Left $ BErrorNotNew $ tshow act
-    newGuard True  = pure ()
+    newGuard_ = eitherTGuard_ (BErrorNotNew $ tshow act)
     newDesc old Nothing = old
     newDesc old (Just new) = old `append` "\n\n" `append` new
 
@@ -247,6 +227,13 @@ addNewUserToDb dbName token aId =
     doesStriverExistInDb aId >>= \case
       False -> Right <$> addStriverToDb token aId
       True  -> pure $ Left $ DBDuplicateError ("User " `append` tshow aId `append` " is not new")
+
+-- | Determine if the user is new or returning.
+doIKnowYou :: AthleteId -> ReaderIO Env (Either Error Bool)
+doIKnowYou you = getDbName >>= \db -> liftIO $ runEitherT $ do
+  name <- hoistEither $ errorForNothing DBError "Db.name not specified in confgiruation file" db
+  newEitherT $ withDb (toFilePath name)
+                      (Right <$> doesStriverExistInDb you)
 
 -- | Get the access token for a returning user
 oldUser :: AthleteId -> ReaderIO Env (Either Error AccessToken)
@@ -309,3 +296,119 @@ refreshUser oldToken = getAppInfo >>= \info ->
         \case
           False -> pure $ Left $ DBNotFoundError "User doesn't exist"
           True  -> Right <$> updateStriverInDb newToken aId
+
+{----- | Get the description for an activity.-}
+{-getActivityDescription :: MonadIO m => AccessToken -> ActivityId -> m (Either Error Text)-}
+{-getActivityDescription token act = do-}
+  {-client  <- liftIO $ buildClient' $ from $ token ^. access-}
+  {-liftIO $ getActivityDetailed client (from act) (with [set allEfforts True]) <&>-}
+    {-bimap propagateStriveError (fromMaybe "" . (^. S.description))-}
+
+-- | Extract ActivityRating from Strive
+extractActivityRating :: MonadIO m => AccessToken -> ActivityId -> m (Either Error ActivityRating)
+extractActivityRating token act = do
+  client   <- liftIO $ buildClient' $ from $ token ^. access
+  liftIO $ getActivityDetailed client (from act) (with [set allEfforts True]) <&>
+      bimap propagateStriveError makeActivity
+  where
+    makeActivity :: ActivityDetailed -> ActivityRating
+    makeActivity detail =
+      let s     = striveTypeToSport $ detail ^. S.type_
+          dist  = Meters $ floor $ detail ^. S.distance
+          dur   = Seconds $ unsafeFrom $ detail ^. S.movingTime
+          ele   = MetersGained $ floor $ detail ^. S.totalElevationGain
+          speed = MetersPerSec $ realToFrac $ detail ^. S.averageSpeed
+          start = detail ^. S.startDate -- [Note startDateLocal]
+          zone  = textToTimeZone $ from (detail ^. S.timezone)
+      in ActivityRating
+          s
+          (distanceToRating s dist)
+          (durationToRating s dur)
+          (elevationToRating s ele dist)
+          (speedToRating s speed)
+          (localTimeToPOD (utcToLocalTime zone start))
+
+-- [Note startDateLocal]
+-- The way the remove API works is a bit suprising.  startDate is the UTC start date+time.
+-- startDateLocal is the local time start date+time.  However, startDateLocal is returned
+-- as a UTC time as if it was a local time.  This presents two choices on how to handle thec:
+--   - Use the real UTC time (startDate) with the timezone info to calculate localtime ourselves.
+--   - Use startDateLocal and convert it to LocalTime using a 0-offset timezone.
+--
+-- Currently the former is in-use.  But may want to re-consider the latter.
+-- The timezone info returned by the remote is a little sus - afaict it doesn't factor in DST.
+-- For example, I get (GMT-08:00) America/Los_Angeles despite being in DST, so I should expect
+-- (GMT-07:00) America/Los_Angeles.
+
+-- | Convert a strive ActivityType to our Sport.
+-- This is a bit silly since they are nearly identical.
+-- Might be better to just use a type aliases.
+striveTypeToSport :: S.ActivityType -> Sport
+striveTypeToSport = \case
+  S.AlpineSki
+           -> AlpineSki
+  S.BackcountrySki
+           -> BackcountrySki
+  S.Canoeing
+           -> Canoeing
+  S.CrossCountrySkiing
+           -> BackcountrySki
+  S.Crossfit
+           -> Crossfit
+  S.Elliptical
+           -> Elliptical
+  S.Hike
+           -> Hike
+  S.IceSkate
+           -> IceSkate
+  S.InlineSkate
+           -> InlineSkate
+  S.Kayaking
+           -> Kayaking
+  S.KiteSurf
+           -> Kitesurf
+  S.NordicSki
+           -> NordicSki
+  S.Ride
+           -> Ride
+  S.RockClimbing
+           -> RockClimbing
+  S.RollerSki
+           -> RollerSki
+  S.Rowing
+           -> Rowing
+  S.Run
+           -> Run
+  S.Snowboard
+           -> Snowboard
+  S.Snowshoe
+           -> Snowshoe
+  S.StairStepper
+           -> StairStepper
+  S.StandUpPaddling
+           -> StandUpPaddling
+  S.Surfing
+           -> Surfing
+  S.Swim
+           -> Swim
+  S.VirtualRide
+           -> VirtualRide
+  S.Walk
+           -> Walk
+  S.WeightTraining
+           -> WeightTraining
+  S.Windsurf
+           -> Windsurf
+  S.Workout
+           -> Workout
+  S.Yoga
+           -> Yoga
+           {-| EBikeRide-}
+           {-| Golf-}
+           {-| Handcycle-}
+           {-| Sail-}
+           {-| Skateboard-}
+           {-| Soccer-}
+           {-| Velomobile-}
+           {-| VirtualRun-}
+           {-| Wheelchair-}

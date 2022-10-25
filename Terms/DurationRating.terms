@@ -9,10 +9,10 @@
     , "_synonyms": ["midlength", "standard", "middle-of-the-road", "humdrum"]
     }
 ,   { "_term": "Long"
-    , "_synonyms": ["long", "lengthy", "satisfying"]
+    , "_synonyms": ["long", "lengthy", "satisfying", "enduring"]
     }
 ,   { "_term": "VeryLong"
-    , "_synonyms": ["very long", "mildly epic"]
+    , "_synonyms": ["very long", "mildly epic", "prolonged"]
     }
 ,   { "_term": "InsaneLong"
     , "_synonyms": ["endless", "infinite", "timeless", "epic"]

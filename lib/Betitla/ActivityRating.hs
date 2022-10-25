@@ -14,5 +14,4 @@ data ActivityRating =
                  , _elevationRating :: ElevationRating
                  , _speedRating     :: SpeedRating
                  , _phaseOfDay      :: PhaseOfDay
-                 }
-
+                 } deriving (Show)

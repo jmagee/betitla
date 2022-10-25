@@ -1,9 +1,12 @@
 [
     { "_term": "VeryNear"
-    , "_synonyms": ["very near", "super near", "suspiciously not-far", "embarassingly minimal"]
+    , "_synonyms": ["very near", "super near", "suspiciously not-far",
+                    "embarassingly minimal", "nigh", "within stone's throw",
+                    "vincincal"
+                   ]
     }
 ,   { "_term": "Near"
-    , "_synonyms": ["near", "not-far", "small"]
+    , "_synonyms": ["near", "not-far", "small", "nearby", "at close quarters"]
     }
 ,   { "_term": "Medium"
     , "_synonyms": ["midsize", "medium", "middling", "modest", "reasonable", "tidy"]
@@ -12,7 +15,7 @@
     , "_synonyms": ["far", "immense", "great", "extended"]
     }
 ,   { "_term": "VeryFar"
-    , "_synonyms": ["very far", "almighty", "monstrous", "beastly"]
+    , "_synonyms": ["very far", "almighty", "monstrous", "beastly", "far-flung"]
     }
 ,   { "_term": "InsaneFar"
     , "_synonyms": ["divine", "omnipotent", "colossus", "insane"]

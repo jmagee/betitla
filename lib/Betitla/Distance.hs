@@ -104,6 +104,8 @@ elevationRatings = [PancakeFlat, Flat, Hilly, VeryHilly, SuperGoat]
 elevationToRating :: Sport -> Elevation -> Distance -> ElevationRating
 elevationToRating sport elevation dist = select (metersPerKm elevation dist) (pickDtable sport) elevationRatings
   where
-    metersPerKm (MetersGained m) (Kilometers km) = m `div` km
+    metersPerKm (MetersGained m) (Kilometers km) = km == 0 ? m $ m `div` km
     metersPerKm x y = metersPerKm x (toKm y)
     pickDtable Ride = [1, 4, 10, 20]
+    pickDtable Run  = [1, 4, 10, 20]
+    pickDtable Walk = [1, 4, 10, 20]

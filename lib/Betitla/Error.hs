@@ -16,6 +16,7 @@ data Error = StriveError Text
            | DBNotFoundError Text
            | DBError Text
            | BErrorNotNew Text
+           | BErrorPurse Text
            deriving (Show)
 
 instance Display Error where
@@ -24,6 +25,7 @@ instance Display Error where
   display (DBNotFoundError s) = "Entry not found in database: " `append` s
   display (DBError s) = "Database error: " `append` s
   display (BErrorNotNew s) = "Betitla error, activity has already been processed: " `append` s
+  display (BErrorPurse s) = "Betitla error.  I don't know you, that's my purse: " `append` s
 
 errorFromString :: (Text -> Error) -> String -> Error
 errorFromString cons = cons . cs
