@@ -1,7 +1,10 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module RenamerSpec (spec) where
 
 import           Betitla.Distance
 import           Betitla.Speed
+import           Betitla.Striver
 import           Betitla.Time
 
 import           Test.Hspec
@@ -181,3 +184,13 @@ spec = do
     prop "Transitivity" (transitivityEq :: SpeedRating -> SpeedRating -> SpeedRating -> Bool)
     prop "Substitutivity" (substitutivity :: SpeedRating -> SpeedRating -> Bool)
     prop "Negation" (negation :: SpeedRating -> SpeedRating -> Bool)
+
+  describe "Scope Checker" $ do
+    prop "finds it" $
+      hasRequiredScope "scope=read,read_all,activity:read,activity:write" `shouldBe` True
+    prop "finds it again" $
+      hasRequiredScope "scope=read,read_all,activity:read_all,activity:write" `shouldBe` True
+    prop "doesn't find it" $
+      hasRequiredScope "scope=read,read_all,activity:read_all" `shouldBe` False
+    prop "doesn't find it again" $
+      hasRequiredScope "scope=read,read_all,activity:write" `shouldBe` False

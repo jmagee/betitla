@@ -6,7 +6,7 @@
     , "_synonyms": ["short", "not-long", "brusque", "scant", "little"]
     }
 ,   { "_term": "Average"
-    , "_synonyms": ["midlength", "standard", "middle-of-the-road", "humdrum"]
+    , "_synonyms": ["midlength", "standard", "middle-of-the-road", "humdrum", "just-right"]
     }
 ,   { "_term": "Long"
     , "_synonyms": ["long", "lengthy", "satisfying", "enduring"]

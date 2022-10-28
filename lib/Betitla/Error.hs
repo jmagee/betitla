@@ -3,6 +3,7 @@ module Betitla.Error
 ( Error (..)
 , errorFromString
 , errorForNothing
+, errorForNothing'
 ) where
 
 import           Betitla.Display
@@ -34,3 +35,8 @@ errorFromString cons = cons . cs
 errorForNothing :: (Text -> Error) -> Text -> Maybe a -> Either Error a
 errorForNothing cons msg Nothing = (Left . cons) msg
 errorForNothing _    _   (Just x) = Right x
+
+-- | Convert a Maybe to an Either.
+errorForNothing' :: e -> Maybe a -> Either e a
+errorForNothing' e Nothing = Left e
+errorForNothing' _ (Just x) = Right x

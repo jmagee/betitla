@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Betitla.Striver
 ( ClientSecret (..)
@@ -8,6 +9,7 @@ module Betitla.Striver
 , ActivityId (..)
 , AuthCode (..)
 , AppId (..)
+, getAuthUrl
 , getSecretToken
 , getAppId
 , getAccessToken
@@ -24,6 +26,7 @@ module Betitla.Striver
 , getAppInfo
 , extractActivityRating
 , doIKnowYou
+, hasRequiredScope
 ) where
 
 import           Betitla.AccessToken
@@ -43,15 +46,15 @@ import           Control.Applicative        (liftA3)
 import           Control.Lens.Getter        ((^.))
 import           Control.Lens.Setter        (set, (.~))
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.Reader       (ReaderT, asks)
+import           Control.Monad.Reader       (ReaderT, asks, lift)
 import           Control.Monad.Trans.Either (hoistEither, newEitherT,
-                                             runEitherT)
+                                             runEitherT, hoistMaybe)
 import           Data.Bifunctor             (bimap)
 import           Data.ByteString.Lazy       (ByteString)
 import           Data.Functor               ((<&>))
 import qualified Data.Map              as M (lookup)
 import           Data.Maybe                 (fromMaybe)
-import           Data.Text                  (Text, append)
+import           Data.Text                  (Text, append, isInfixOf)
 import           Data.Time.LocalTime        (utcToLocalTime)
 import           Network.HTTP.Client        (Response)
 import           Path                       (Abs, File, Path, parseAbsFile,
@@ -69,8 +72,10 @@ import           Strive                     (ActivityDetailed, AthleteSummary,
                                              expiresAt, getActivityDetailed,
                                              getCurrentAthleteSummary,
                                              refreshExchangeToken, refreshToken,
-                                             updateActivity, with)
-import           Witch                      (from, unsafeFrom)
+                                             updateActivity, with, buildAuthorizeUrl,
+                                             approvalPrompt, readAllScope, activityReadAllScope,
+                                             activityWriteScope, readScope)
+import           Witch                      (From, from, unsafeFrom)
 
 type ReaderIO a b = ReaderT a IO b
 
@@ -79,6 +84,9 @@ newtype ClientSecret = ClientSecret String
 
 newtype AppId = AppId Integer
               deriving (Show)
+
+instance From AppId Integer where
+  from (AppId x) = x
 
 newtype AuthCode = AuthCode String
                  deriving (Show)
@@ -134,6 +142,20 @@ refreshAccessToken (AppId appId) (ClientSecret secret) token =
             (^. accessToken)
             (^. refreshToken)
             (^. expiresAt))
+
+getAuthUrl :: ReaderIO Env (Either Error String)
+getAuthUrl = do
+  appId <- getAppId
+  host  <- askToken "Host.url" id
+  pure $ buildAuthorizeUrl <$> fmap from appId
+                           <*> host
+                           <*> Just (with [ set approvalPrompt False
+                                          , set readScope True
+                                          , set readAllScope True
+                                          , set activityReadAllScope True
+                                          , set activityWriteScope True
+                                          ])
+  <&> errorForNothing' (StriveError "Missing AppId or Host url")
 
 -- | Get the description for an activity.
 getActivityDescription :: MonadIO m => AccessToken -> ActivityId -> m (Either Error Text)
@@ -412,3 +434,8 @@ striveTypeToSport = \case
            {-| Velomobile-}
            {-| VirtualRun-}
            {-| Wheelchair-}
+
+-- | Check whether the provided text containts the necessary activity scopes.
+hasRequiredScope :: Text -> Bool
+hasRequiredScope text = isInfixOf "activity:read" text &&
+                        isInfixOf "activity:write" text
