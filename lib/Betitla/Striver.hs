@@ -232,14 +232,14 @@ getAppInfo = do
     pure (appId', secret', dbName')
 
 -- | Get the access token for a new user and save it in the database.
-newUser :: AuthCode -> ReaderIO Env (Either Error AccessToken)
+newUser :: AuthCode -> ReaderIO Env (Either Error AthleteId)
 newUser auth = getAppInfo >>= \info ->
   liftIO $ runEitherT $ do
     (appId, secret, dbName) <- hoistEither info
     token  <- newEitherT  $ getAccessToken appId secret auth
     aId    <- newEitherT  $ getIdByToken token
     _      <- newEitherT  $ addNewUserToDb dbName token aId
-    pure token
+    pure aId
 
 -- | Add a new user to the db.
 -- This first checks if the user already exists and returns an error if so.
