@@ -21,6 +21,7 @@ module Betitla.Striver
 , recordActivity
 , refreshUser
 , removeUser
+, dropUser
 , isActivityNew
 , newActivityTitle
 , getAppInfo
@@ -302,6 +303,20 @@ removeUser athlete =
       deadToken <- newEitherT $ deauthorizeByToken (accessTokenFromStriver striver)
       _         <- newEitherT $ Right <$> deleteStriverFromDb athlete
       pure deadToken
+
+-- | Drop a user from the records
+-- This is identical to removeUser, except it doesn't attempt to deauthenticate
+-- from the remote.  This should be used when responding to a deauth webhook event.
+dropUser :: AthleteId -> ReaderIO Env (Either Error ())
+dropUser athlete =
+  getDbName >>= \case
+    Nothing   -> pure $ Left (DBError "Db.name not specified in configuration file")
+    Just name -> liftIO $ go name
+  where
+   go name = withDb (toFilePath name) $ runEitherT $ do
+      striver   <- newEitherT $ selectStriverFromDb athlete
+      _         <- newEitherT $ Right <$> deleteStriverFromDb athlete
+      pure ()
 
 -- | Refresh the user's AccessToken
 refreshUser :: AccessToken -> ReaderIO Env (Either Error AccessToken)
