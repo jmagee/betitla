@@ -11,7 +11,6 @@ module Betitla.Sentence
 import           Betitla.ActivityRating
 --import           Betitla.Distance
 import           Betitla.Env
-import           Betitla.Lenses
 --import           Betitla.Speed
 --import           Betitla.Sport
 import           Betitla.Term

@@ -42,7 +42,6 @@ module Betitla.Db
 
 import           Betitla.AccessToken
 import           Betitla.Error
-import           Betitla.Lenses
 import           Betitla.StriverIds
 
 import           Control.Lens.Getter     ((^.))

@@ -36,7 +36,6 @@ import           Betitla.Db
 import           Betitla.Distance
 import           Betitla.Env
 import           Betitla.Error
-import           Betitla.Lenses
 import           Betitla.Speed
 import           Betitla.Sport
 import           Betitla.StriverIds
