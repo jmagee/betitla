@@ -7,10 +7,9 @@ module Betitla.Lenses where
 {-, expiration-}
 {-) where-}
 
-import           Betitla.AccessToken
 import           Betitla.ActivityRating
 
 import           Control.Lens    (makeLenses)
 
-makeLenses ''AccessToken
+--makeLenses ''AccessToken
 makeLenses ''ActivityRating

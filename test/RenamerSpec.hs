@@ -2,13 +2,17 @@
 
 module RenamerSpec (spec) where
 
+import           Betitla.AccessToken
 import           Betitla.Distance
 import           Betitla.Speed
 import           Betitla.Striver
 import           Betitla.Time
 
+import           Control.Lens.Getter   ((^.))
+import           Control.Lens.Setter   ((.~))
+import           Data.Function         ((&))
 import           Test.Hspec
-import           Test.Hspec.QuickCheck  (prop)
+import           Test.Hspec.QuickCheck (prop)
 
 reflexivity :: Eq a => a -> Bool
 reflexivity x = x == x
@@ -194,3 +198,15 @@ spec = do
       hasRequiredScope "scope=read,read_all,activity:read_all" `shouldBe` False
     prop "doesn't find it again" $
       hasRequiredScope "scope=read,read_all,activity:write" `shouldBe` False
+
+  describe "AccessToken Optics" $ do
+    prop "get access" $ \x ->
+      x ^. access `shouldBe` _access x
+    prop "set access" $ \x ->
+      (x & access .~ "Bob")  `shouldBe` x { _access = "Bob"}
+    prop "get refresh" $ \x ->
+      x ^. refresh `shouldBe` _refresh x
+    prop "set refresh" $ \x ->
+      (x & refresh .~ "Bib")  `shouldBe` x { _refresh = "Bib"}
+    prop "get expiration" $ \x ->
+      x ^. expiration `shouldBe` _expiration x
