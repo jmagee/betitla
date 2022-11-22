@@ -117,7 +117,7 @@ getSlogan = askToken "App.slogan" from
 
 -- | Promote an error from the underlying Strive library into a Betitla Error type.
 propagateStriveError :: (Response ByteString, String) -> Error
-propagateStriveError (full, msg) = errorFromString StriveError $ show full ++ " ; " ++ msg
+propagateStriveError (full, msg) = StriveError $ tshow full <> " ; " <> from msg
 
 -- | Using a 1-time authorization code, request the AccessToken from the remote.
 getAccessToken :: AppId -> ClientSecret -> AuthCode -> IO (Either Error AccessToken)
@@ -155,7 +155,7 @@ getAuthUrl = do
                                           , set activityReadAllScope True
                                           , set activityWriteScope True
                                           ])
-  <&> errorForNothing' (StriveError "Missing AppId or Host url")
+  <&> errorForNothing (StriveError "Missing AppId or Host url")
 
 -- | Get the description for an activity.
 getActivityDescription :: MonadIO m => AccessToken -> ActivityId -> m (Either Error Text)
@@ -226,9 +226,9 @@ getAppInfo = do
   secret <- getSecretToken
   dbName <- getDbName
   liftIO $ runEitherT $ do
-    appId'  <- hoistEither $ errorForNothing StriveError "Could not read AppId" appId
-    secret' <- hoistEither $ errorForNothing StriveError "Could not read App Secret" secret
-    dbName' <- hoistEither $ errorForNothing DBError "Db.name not specified in configuration file" dbName
+    appId'  <- hoistEither $ errorForNothing (StriveError "Could not read AppId") appId
+    secret' <- hoistEither $ errorForNothing (StriveError "Could not read App Secret") secret
+    dbName' <- hoistEither $ errorForNothing (DBError "Db.name not specified in configuration file") dbName
     pure (appId', secret', dbName')
 
 -- | Get the access token for a new user and save it in the database.
@@ -253,7 +253,7 @@ addNewUserToDb dbName token aId =
 -- | Determine if the user is new or returning.
 doIKnowYou :: AthleteId -> ReaderIO Env (Either Error Bool)
 doIKnowYou you = getDbName >>= \db -> liftIO $ runEitherT $ do
-  name <- hoistEither $ errorForNothing DBError "Db.name not specified in confgiruation file" db
+  name <- hoistEither $ errorForNothing (DBError "Db.name not specified in confgiruation file") db
   newEitherT $ withDb (toFilePath name)
                       (Right <$> doesStriverExistInDb you)
 
@@ -263,7 +263,7 @@ oldUser aId = getDbName >>= liftIO . go
     where
       go :: Maybe (Path Abs File) -> IO (Either Error AccessToken)
       go db = runEitherT $ do
-        name    <- hoistEither $ errorForNothing DBError "Db.name not specified in configuration file" db
+        name    <- hoistEither $ errorForNothing (DBError "Db.name not specified in configuration file") db
         striver <- newEitherT (withDb (toFilePath name) $ selectStriverFromDb aId)
         pure $ accessTokenFromStriver striver
 
@@ -274,7 +274,7 @@ recordActivity aId act =
     where
       go :: Maybe (Path Abs File) -> IO (Either Error ())
       go db = runEitherT $ do
-        name    <- hoistEither $ errorForNothing DBError "Db.name not specified in configuration file" db
+        name    <- hoistEither $ errorForNothing (DBError "Db.name not specified in configuration file") db
         newEitherT $ withDb (toFilePath name) $ do
           userExists <- doesStriverExistInDb aId
           actExists  <- doesActivityExistInDb act
@@ -286,7 +286,7 @@ recordActivity aId act =
 -- | Determine if an activity is new (i.e. hasn't been seen and processed).
 isActivityNew :: ActivityId -> ReaderIO Env (Either Error Bool)
 isActivityNew act = getDbName >>= \db -> liftIO $ runEitherT $ do
-  name <- hoistEither $ errorForNothing DBError "Db.name not specified in configuration file" db
+  name <- hoistEither $ errorForNothing (DBError "Db.name not specified in configuration file") db
   newEitherT $ withDb (toFilePath name)
                       (Right . not <$> doesActivityExistInDb act)
 

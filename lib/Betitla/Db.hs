@@ -43,6 +43,7 @@ module Betitla.Db
 import           Betitla.AccessToken
 import           Betitla.Error
 import           Betitla.StriverIds
+import           Betitla.Util           (tshow)
 
 import           Control.Lens.Getter    ((^.))
 import           Data.Functor.Identity  (Identity)
@@ -175,9 +176,9 @@ selectStriverFromDb :: MonadBeam Sqlite m => AthleteId-> m (Either Error Striver
 selectStriverFromDb sid =
   extractEither <$> selectStriverFromDb' (from sid)
   where
-    extractEither [] = Left $ errorFromString DBNotFoundError $ "ID " ++ show sid
+    extractEither [] = Left $ DBNotFoundError $ "ID " <> tshow sid
     extractEither [x] = Right x
-    extractEither x@(_:_) = Left $ errorFromString DBDuplicateError $ show x
+    extractEither x@(_:_) = Left $ DBDuplicateError $ tshow x
 
 selectStriverFromDb' :: MonadBeam Sqlite m => Int64 -> m [Striver]
 selectStriverFromDb' sid =
@@ -217,7 +218,7 @@ addActivityToDb sid aid =
 selectActivitiesFromDb :: MonadBeam Sqlite m => AthleteId -> m (Either Error [Activity])
 selectActivitiesFromDb sid = extractEither <$> selectActivitiesFromDb' (into @Int64 sid)
   where
-    extractEither [] = Left $ errorFromString DBNotFoundError $ "ID " ++ show sid
+    extractEither [] = Left $ DBNotFoundError $ "ID " <> tshow sid
     extractEither x  = Right x
 
 selectActivitiesFromDb' :: MonadBeam Sqlite m => Int64 -> m [Activity]
@@ -232,9 +233,9 @@ selectActivityFromDb :: MonadBeam Sqlite m => ActivityId -> m (Either Error Acti
 selectActivityFromDb sid =
   extractEither <$> selectActivityFromDb' (into @Int64 sid)
   where
-    extractEither [] = Left $ errorFromString DBNotFoundError $ "ID " ++ show sid
+    extractEither [] = Left $ DBNotFoundError $ "ID " <> tshow sid
     extractEither [x] = Right x
-    extractEither x@(_:_) = Left $ errorFromString DBDuplicateError $ show x
+    extractEither x@(_:_) = Left $ DBDuplicateError $ tshow x
 
 selectActivityFromDb' :: MonadBeam Sqlite m => Int64 -> m [Activity]
 selectActivityFromDb' sid =

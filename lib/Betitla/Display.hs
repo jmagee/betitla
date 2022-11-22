@@ -6,8 +6,8 @@ module Betitla.Display
 , display
 ) where
 
-import           Data.String.Conversions (cs)
-import           Data.Text               (Text)
+import           Data.Text (Text)
+import           Witch     (from)
 
 -- | A type class for displaying data
 -- Like show, but intended to be user derived to have better
@@ -16,4 +16,4 @@ class Show a => Display a where
   -- | Display as Text.
   -- The resulting text is intended to be read by a user.
   display :: a -> Text
-  display = cs . show
+  display = from . show

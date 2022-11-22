@@ -27,10 +27,12 @@ data Distance = Meters Int
               | Kilometers Int
               deriving (Show)
 
+-- | Convert Distance into Kilometers.
 toKm :: Distance -> Distance
 toKm (Meters m) = Kilometers $ m `div` 1000
 toKm km = km
 
+-- | Convert Distance into meters.
 toMeters :: Distance -> Distance
 toMeters (Kilometers km) = Meters $ km * 1000
 toMeters m = m
@@ -62,6 +64,7 @@ instance FromJSON DistanceRating
 instance Arbitrary DistanceRating where
   arbitrary = oneof $ pure <$> distanceRatings
 
+-- | List of all distance ratings.
 distanceRatings :: [DistanceRating]
 distanceRatings = [VeryNear, Near, Medium, Far, VeryFar, InsaneFar]
 
@@ -80,10 +83,10 @@ distanceToRating sport dist = select dist (pickDtable sport) distanceRatings
     pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]
 
 newtype Elevation = MetersGained Int
-               deriving (Show, Eq, Ord)
+                  deriving (Show, Eq, Ord)
 
 instance Arbitrary Elevation where
-  arbitrary = MetersGained <$> (arbitrary :: Gen Int)
+  arbitrary = MetersGained <$> arbitrary
 
 data ElevationRating = PancakeFlat
                      | Flat
@@ -98,9 +101,11 @@ instance FromJSON ElevationRating
 instance Arbitrary ElevationRating where
   arbitrary = oneof $ pure <$> elevationRatings
 
+-- | List of all elevation ratings.
 elevationRatings :: [ElevationRating]
 elevationRatings = [PancakeFlat, Flat, Hilly, VeryHilly, SuperGoat]
 
+-- | Convert an Elevation into an Elevation rating.
 elevationToRating :: Sport -> Elevation -> Distance -> ElevationRating
 elevationToRating sport elevation dist = select (metersPerKm elevation dist) (pickDtable sport) elevationRatings
   where
