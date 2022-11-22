@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 module Betitla.AccessToken
 ( AccessToken (..)
 , buildAccessToken
@@ -9,15 +10,16 @@ module Betitla.AccessToken
 ) where
 
 import           Control.Lens.Getter       ((^.))
-import           Data.String.Conversions   (cs)
 import           Data.Text                 (Text)
 import           Data.Time.Clock.System    (SystemTime (..), getSystemTime)
+import           Witch                     (from)
 
+import           Test.QuickCheck           (Gen)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary)
 
 data AccessToken =
-  AccessToken { _access     :: String
-              , _refresh    :: String
+  AccessToken { _access     :: Text
+              , _refresh    :: Text
               , _expiration :: SystemTime
               } deriving (Show, Eq)
 
@@ -31,17 +33,27 @@ instance Arbitrary AnySystemTime where
 unwrapAnySystemTime :: AnySystemTime -> SystemTime
 unwrapAnySystemTime (AnySystemTime x) = x
 
+-- | Text Wrapper for testing.
+newtype AnyText = AnyText Text
+
+instance Arbitrary AnyText where
+  arbitrary = AnyText . from <$> (arbitrary :: Gen String)
+
+-- | Unwrapper for AnySystemTime.
+unwrapAnyText :: AnyText -> Text
+unwrapAnyText (AnyText x) = x
+
 instance Arbitrary AccessToken where
-  arbitrary = AccessToken <$> arbitrary
-                          <*> arbitrary
+  arbitrary = AccessToken <$> (unwrapAnyText <$> arbitrary)
+                          <*> (unwrapAnyText <$> arbitrary)
                           <*> (unwrapAnySystemTime <$> arbitrary)
 
 -- | Access Lens.
-access :: Functor f => (String -> f String) -> (AccessToken -> f AccessToken)
+access :: Functor f => (Text -> f Text) -> (AccessToken -> f AccessToken)
 access zoom (AccessToken a r e) = fmap (\new -> AccessToken new r e) (zoom a)
 
 -- | Refresh Lens.
-refresh :: Functor f => (String -> f String) -> (AccessToken -> f AccessToken)
+refresh :: Functor f => (Text -> f Text) -> (AccessToken -> f AccessToken)
 refresh zoom (AccessToken a r e) = fmap (\new -> AccessToken a new e) (zoom r)
 
 -- | Expieration Lens.
@@ -59,7 +71,4 @@ isTokenAlive = fmap not . isTokenExpired
 
 -- | Construct an AccessToken from the raw token parts.
 buildAccessToken :: Text -> Text -> Integer -> AccessToken
-buildAccessToken a r e =
-  AccessToken (cs a)
-              (cs r)
-              (MkSystemTime (fromIntegral e) 0)
+buildAccessToken a r e = AccessToken a r (MkSystemTime (fromIntegral e) 0)

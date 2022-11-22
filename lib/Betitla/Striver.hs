@@ -137,7 +137,7 @@ getAccessToken (AppId appId) (ClientSecret secret) (AuthCode code) =
 -- isTokenAlive to guard against such unnecessary calls.
 refreshAccessToken :: AppId -> ClientSecret -> AccessToken -> IO (Either Error AccessToken)
 refreshAccessToken (AppId appId) (ClientSecret secret) token =
-  refreshExchangeToken appId secret (token ^. refresh) <&>
+  refreshExchangeToken appId secret (from $ token ^. refresh) <&>
     bimap propagateStriveError
           (liftA3 buildAccessToken
             (^. accessToken)
@@ -161,7 +161,7 @@ getAuthUrl = do
 -- | Get the description for an activity.
 getActivityDescription :: MonadIO m => AccessToken -> ActivityId -> m (Either Error Text)
 getActivityDescription token act = do
-  client  <- liftIO $ buildClient' $ from $ token ^. access
+  client  <- liftIO $ buildClient' $ token ^. access
   liftIO $ getActivityDetailed client (from act) (with [set allEfforts True]) <&>
     bimap propagateStriveError (fromMaybe "" . (^. S.description))
 
@@ -172,7 +172,7 @@ getActivityDescription token act = do
 -- A happy side effect of combining them is reducing the number of requests I suppose.
 updateActivityTitleAndDesc :: MonadIO m => AccessToken -> ActivityId -> Text -> Text -> m (Either Error Text)
 updateActivityTitleAndDesc token act newTitle newDesc = do
-  client <- liftIO $ buildClient' $ from $ token ^. access
+  client <- liftIO $ buildClient' $ token ^. access
   liftIO $ updateActivity client (from act) (with [ set S.name (Just $ from newTitle)
                                                   , set S.description (Just $ from newDesc)
                                                   ]) <&>
@@ -206,14 +206,14 @@ buildClient' = buildClient . Just
 -- | Get the athelete ID that corrosponds to the AccessToken.
 getIdByToken :: AccessToken -> IO (Either Error AthleteId)
 getIdByToken token = do
-  client <- buildClient' $ from $ token ^. access
+  client <- buildClient' $ token ^. access
   getCurrentAthleteSummary client <&>
     bimap propagateStriveError (athleteIdFromInteger . (^. S.id))
 
 -- | Deauthorize the AccessToken
 deauthorizeByToken :: MonadIO m => AccessToken -> m (Either Error AccessToken)
 deauthorizeByToken token = do
-  client <- liftIO (buildClient' $ from $ token ^. access)
+  client <- liftIO (buildClient' $ token ^. access)
   liftIO $ deauthorize client <&>
     bimap propagateStriveError
           (liftA3 buildAccessToken
@@ -344,7 +344,7 @@ refreshUser oldToken = getAppInfo >>= \info ->
 -- | Extract ActivityRating from Strive
 extractActivityRating :: MonadIO m => AccessToken -> ActivityId -> m (Either Error ActivityRating)
 extractActivityRating token act = do
-  client   <- liftIO $ buildClient' $ from $ token ^. access
+  client   <- liftIO $ buildClient' $ token ^. access
   liftIO $ getActivityDetailed client (from act) (with [set allEfforts True]) <&>
       bimap propagateStriveError makeActivity
   where
