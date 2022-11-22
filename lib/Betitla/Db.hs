@@ -12,6 +12,8 @@
 {-# LANGUAGE TypeFamilies          #-}
 --[># LANGUAGE TypeSynonymInstances  #<]
 {-# LANGUAGE TypeApplications      #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 -- ^ tableLenses signatures seem problematic to express
@@ -65,6 +67,7 @@ import           Database.SQLite.Simple (Connection, close, execute_, open)
 import           GHC.Generics           (Generic)
 import           System.Directory       (doesFileExist)
 import           Witch                  (from, into)
+import Control.Lens.TH (makeLenses)
 
 -- | Database table data for a single "Striver".
 -- This records the striver ID, access and refresh tokens, and the refresh token expiration
@@ -75,9 +78,10 @@ data StriverT f =
           , _striverExpiration    :: Columnar f Int64
           } deriving (Generic, Beamable)
 
-Striver (LensFor striverId) (LensFor striverAccessToken)
-        (LensFor striverRefreshToken) (LensFor striverExpiration)
-        = tableLenses
+{-Striver (LensFor striverId) (LensFor striverAccessToken)-}
+        {-(LensFor striverRefreshToken) (LensFor striverExpiration)-}
+        {-= tableLenses-}
+$(makeLenses ''StriverT)
 
 type Striver = StriverT Identity
 
@@ -95,7 +99,8 @@ data ActivityT f =
              , _activityId         :: Columnar f Int64
              } deriving (Generic, Beamable)
 
-Activity (LensFor activityStriverId) (LensFor activityId) = tableLenses
+--Activity (LensFor activityStriverId) (LensFor activityId) = tableLenses
+$(makeLenses ''ActivityT)
 
 type Activity = ActivityT Identity
 
