@@ -51,7 +51,6 @@ genSentence SentenceSimple rating = do
   (pure . capFirst . dropLeadingSpaces ) $ unwords [phase, terms, sprt]
 
 getAll :: ActivityRating -> ReaderIO Env [String]
---getAll (ActivityRating sport distance duration elevation speed phase) = sequence
 getAll activity = sequence
   [ --pickTerm phase
     pickTerm $ activity ^. speedRating

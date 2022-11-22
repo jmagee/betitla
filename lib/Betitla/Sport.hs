@@ -7,8 +7,8 @@ module Betitla.Sport
 import           Betitla.Term
 import           Betitla.Util
 
-import           Data.Aeson                (FromJSON)
-import           GHC.Generics              (Generic)
+import           Data.Aeson   (FromJSON)
+import           GHC.Generics (Generic)
 
 data Sport = AlpineSki
            | BackcountrySki

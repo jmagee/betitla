@@ -30,6 +30,7 @@ toMPS (KmPerHour kph) = MetersPerSec $ kph / 3.6
 toMPS mps@(MinPerKm _) = (toMPS . toKPH) mps
 toMPS x = x
 
+-- | Convert Speed to KPH.
 toKPH :: Speed -> Speed
 toKPH (MetersPerSec mps) = KmPerHour $ mps * 3.6
 toKPH (MinPerKm mpk) = KmPerHour $ (1.0 / mpk) * 60.0
@@ -37,6 +38,7 @@ toKPH x = x
 
 -- formula kph to mpk
 -- 1 / (kph / 60)
+-- | Convert Speed to minutes per kilometer.
 toMPK :: Speed -> Speed
 toMPK (KmPerHour kph) = MinPerKm $ 1 / (kph / 60)
 toMPK mps@(MetersPerSec _) = (toMPK . toKPH) mps
