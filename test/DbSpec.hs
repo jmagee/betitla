@@ -5,7 +5,6 @@ module DbSpec (spec) where
 import           Betitla.AccessToken
 import           Betitla.Db
 import           Betitla.Error
-import           Betitla.Lenses
 import           Betitla.Striver
 import           Betitla.StriverIds
 

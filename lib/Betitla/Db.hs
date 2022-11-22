@@ -44,27 +44,26 @@ import           Betitla.AccessToken
 import           Betitla.Error
 import           Betitla.StriverIds
 
-import           Control.Lens.Getter     ((^.))
-import           Data.Functor.Identity   (Identity)
-import           Data.Int                (Int64)
-import           Data.String.Conversions (cs)
-import           Data.Text               (Text)
-import           Data.Time.Clock.System  (SystemTime (..))
-import           Database.Beam           (Beamable, Columnar, Database,
-                                          DatabaseEntity, DatabaseSettings,
-                                          LensFor (..), MonadBeam, PrimaryKey,
-                                          Q, QExpr, Table (..), TableEntity,
-                                          all_, defaultDbSettings, delete,
-                                          guard_, insert, insertValues,
-                                          runDelete, runInsert,
-                                          runSelectReturningList, runUpdate,
-                                          save, select, tableLenses, val_,
-                                          (==.))
-import           Database.Beam.Sqlite    (Sqlite, SqliteM, runBeamSqlite)
-import           Database.SQLite.Simple  (Connection, close, execute_, open)
-import           GHC.Generics            (Generic)
-import           System.Directory        (doesFileExist)
-import           Witch (into, from)
+import           Control.Lens.Getter    ((^.))
+import           Data.Functor.Identity  (Identity)
+import           Data.Functor ((<&>))
+import           Data.Int               (Int64)
+import           Data.Text              (Text)
+import           Data.Time.Clock.System (SystemTime (..))
+import           Database.Beam          (Beamable, Columnar, Database,
+                                         DatabaseEntity, DatabaseSettings,
+                                         LensFor (..), MonadBeam, PrimaryKey, Q,
+                                         QExpr, Table (..), TableEntity, all_,
+                                         defaultDbSettings, delete, guard_,
+                                         insert, insertValues, runDelete,
+                                         runInsert, runSelectReturningList,
+                                         runUpdate, save, select, tableLenses,
+                                         val_, (==.))
+import           Database.Beam.Sqlite   (Sqlite, SqliteM, runBeamSqlite)
+import           Database.SQLite.Simple (Connection, close, execute_, open)
+import           GHC.Generics           (Generic)
+import           System.Directory       (doesFileExist)
+import           Witch                  (from, into)
 
 -- | Database table data for a single "Striver".
 -- This records the striver ID, access and refresh tokens, and the refresh token expiration
@@ -80,7 +79,6 @@ Striver (LensFor striverId) (LensFor striverAccessToken)
         = tableLenses
 
 type Striver = StriverT Identity
-type StriverKey = PrimaryKey StriverT Identity
 
 deriving instance Show Striver
 deriving instance Eq Striver
@@ -99,7 +97,6 @@ data ActivityT f =
 Activity (LensFor activityStriverId) (LensFor activityId) = tableLenses
 
 type Activity = ActivityT Identity
-type ActivityKey = PrimaryKey ActivityT Identity
 
 deriving instance Show Activity
 deriving instance Eq Activity
@@ -132,8 +129,8 @@ allActivities = all_ activitiesTable
 striverFromBits :: AccessToken -> AthleteId -> Striver
 striverFromBits token sid =
   Striver (from sid)
-          (cs $ token ^. access)
-          (cs $ token ^. refresh)
+          (token ^. access)
+          (token ^. refresh)
           (systemSeconds $ token ^. expiration)
 
 accessTokenFromStriver :: Striver -> AccessToken
@@ -191,9 +188,7 @@ selectStriverFromDb' sid =
 
 -- | Determine if a striver exists in the database.
 doesStriverExistInDb :: MonadBeam Sqlite m => AthleteId -> m Bool
-doesStriverExistInDb x = selectStriverFromDb x >>= \case
-  Left _  -> pure False
-  Right _ -> pure True
+doesStriverExistInDb x = selectStriverFromDb x <&> either (const False) (const True)
 
 updateStriverInDb :: MonadBeam Sqlite m => AccessToken -> AthleteId -> m ()
 updateStriverInDb at sid = updateStriverInDb' (striverFromBits at sid)
@@ -250,9 +245,8 @@ selectActivityFromDb' sid =
 
 -- | Determine if an activity exists in the database.
 doesActivityExistInDb :: MonadBeam Sqlite m => ActivityId -> m Bool
-doesActivityExistInDb x = selectActivityFromDb x >>= \case
-  Left _  -> pure False
-  Right _ -> pure True
+doesActivityExistInDb x = selectActivityFromDb x <&> either (const False) (const True)
 
+-- | For debugging, dump all activities recorded in the DB.
 dbgDumpActivities :: MonadBeam Sqlite m => m [Activity]
 dbgDumpActivities = runSelectReturningList $ select allActivities
