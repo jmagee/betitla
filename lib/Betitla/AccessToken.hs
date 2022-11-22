@@ -1,4 +1,6 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeApplications #-}
+
 module Betitla.AccessToken
 ( AccessToken (..)
 , buildAccessToken
@@ -12,7 +14,7 @@ module Betitla.AccessToken
 import           Control.Lens.Getter       ((^.))
 import           Data.Text                 (Text)
 import           Data.Time.Clock.System    (SystemTime (..), getSystemTime)
-import           Witch                     (from)
+import           Witch                     (From, from)
 
 import           Test.QuickCheck           (Gen)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary)
@@ -29,9 +31,8 @@ newtype AnySystemTime = AnySystemTime SystemTime
 instance Arbitrary AnySystemTime where
   arbitrary = AnySystemTime <$> (MkSystemTime <$> arbitrary <*> arbitrary)
 
--- | Unwrapper for AnySystemTime.
-unwrapAnySystemTime :: AnySystemTime -> SystemTime
-unwrapAnySystemTime (AnySystemTime x) = x
+instance From AnySystemTime SystemTime where
+  from (AnySystemTime x) = x
 
 -- | Text Wrapper for testing.
 newtype AnyText = AnyText Text
@@ -39,14 +40,13 @@ newtype AnyText = AnyText Text
 instance Arbitrary AnyText where
   arbitrary = AnyText . from <$> (arbitrary :: Gen String)
 
--- | Unwrapper for AnySystemTime.
-unwrapAnyText :: AnyText -> Text
-unwrapAnyText (AnyText x) = x
+instance From AnyText Text where
+  from (AnyText x) = x
 
 instance Arbitrary AccessToken where
-  arbitrary = AccessToken <$> (unwrapAnyText <$> arbitrary)
-                          <*> (unwrapAnyText <$> arbitrary)
-                          <*> (unwrapAnySystemTime <$> arbitrary)
+  arbitrary = AccessToken <$> (from @AnyText <$> arbitrary)
+                          <*> (from @AnyText <$> arbitrary)
+                          <*> (from @AnySystemTime <$> arbitrary)
 
 -- | Access Lens.
 access :: Functor f => (Text -> f Text) -> (AccessToken -> f AccessToken)
