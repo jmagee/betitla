@@ -9,11 +9,13 @@ module Betitla
 ) where
 
 import           Betitla.AccessToken
+import           Betitla.ActivityRating
 import           Betitla.Env
 import           Betitla.Error
 import           Betitla.Sentence
 import           Betitla.Striver
 import           Betitla.StriverIds
+import           Betitla.HolidayTable
 import           Betitla.Util
 
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
@@ -21,6 +23,7 @@ import           Control.Monad.Reader       (lift, runReaderT)
 import           Control.Monad.Trans.Either (hoistEither, newEitherT,
                                              runEitherT)
 
+import Control.Lens.Getter ((^.))
 import           Data.Bool                  (bool)
 import           Data.Text                  (Text)
 import           Data.Time                  (UTCTime (..))
@@ -71,7 +74,12 @@ rename' athlete activity = getEnvRC >>= \env -> runReaderT (go env) env
       newGuard_ isNew
 
       rating   <- newEitherT $ extractActivityRating token activity
-      newTitle <- lift $ genSentence SentenceSimple rating
+      hols     <- newEitherT holidays
+
+      newTitle <- lift $ isHoliday (rating ^. calenderDay) hols
+        ? genSentence SentenceHoliday rating
+        $ genSentence SentenceSimple rating
+
       updatedTitle <- newEitherT $ newActivityTitle token activity athlete (from newTitle)
       pure updatedTitle
     newGuard_ = eitherTGuard_ (BErrorNotNew $ tshow activity)

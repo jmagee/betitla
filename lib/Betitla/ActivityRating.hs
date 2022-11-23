@@ -8,6 +8,7 @@ module Betitla.ActivityRating
 , elevationRating
 , speedRating
 , phaseOfDay
+, calenderDay
 ) where
 
 import           Betitla.Distance
@@ -24,6 +25,7 @@ data ActivityRating =
                  , _elevationRating :: ElevationRating
                  , _speedRating     :: SpeedRating
                  , _phaseOfDay      :: PhaseOfDay
+                 , _calenderDay     :: CalDay
                  } deriving (Show)
 
 makeLenses ''ActivityRating

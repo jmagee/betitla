@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Betitla.Util
 ( select
 , jbail
@@ -10,6 +11,8 @@ module Betitla.Util
 , tshow
 , (?)
 , eitherTGuard_
+, pickRand
+, pickRandText
 ) where
 
 import           Control.Monad.Trans.Either (EitherT, hoistEither)
@@ -17,6 +20,9 @@ import           Data.Bool                  (bool)
 import qualified Data.ByteString.Lazy       as BS (ByteString, null, readFile)
 import           Data.Functor               ((<&>))
 import           Data.List                  (findIndex)
+import           Data.Maybe                 (fromMaybe)
+import           Data.Sequence              (Seq (..))
+import qualified Data.Sequence              as S (length, lookup)
 import           Data.Text                  (Text)
 import           Path                       (Abs, File, Path, toFilePath)
 import           System.Directory           (doesFileExist, getHomeDirectory)
@@ -92,3 +98,13 @@ infixr 1 ?
 -- error as the failure.
 eitherTGuard_ :: Monad m => x -> Bool -> EitherT x m ()
 eitherTGuard_ err = hoistEither . bool (Left err) (pure ())
+
+-- | Pick a random item from a sequence.
+pickRand :: Seq a -> IO (Maybe a)
+pickRand seq = uplook seq <$> randInt 0 (S.length seq - 1)
+  where
+    uplook = flip S.lookup
+
+-- | pickRand where a is Text.
+pickRandText :: Seq Text -> IO Text
+pickRandText = (fromMaybe "nothing" <$>) . pickRand

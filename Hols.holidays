@@ -1,0 +1,65 @@
+[
+    { "_holiday": "Halloween"
+    , "_calday": { "_year": 1900
+                 , "_month": 10
+                 , "_day": 31
+                 }
+    , "_recurring": true
+    , "_nouns": ["halloween", "all hallow's eve", "day of the dead", "dia de las mortes"]
+    , "_prefices": ["spooky", "haunted"]
+    }
+,   { "_holiday": "Christmas"
+    , "_calday": { "_year": 1900
+                 , "_month": 12
+                 , "_day": 25
+                 }
+    , "_recurring": true
+    , "_nouns": ["christmas"]
+    , "_prefices": ["merry", "jolly"]
+    }
+,   { "_holiday": "GroundHogsDay"
+    , "_calday": { "_year": 1900
+                 , "_month": 2
+                 , "_day": 2
+                 }
+    , "_recurring": true
+    , "_nouns": ["groundhog's day"]
+    , "_prefices": ["hoggish"]
+    }
+,   { "_holiday": "ValentinesDay"
+    , "_calday": { "_year": 1900
+                 , "_month": 2
+                 , "_day": 14
+                 }
+    , "_recurring": true
+    , "_nouns": ["valentine's day", "love day"]
+    , "_prefices": ["loving", "romantic"]
+    }
+,   { "_holiday": "NewYearsEve"
+    , "_calday": { "_year": 1900
+                 , "_month": 12
+                 , "_day": 31
+                 }
+    , "_recurring": true
+    , "_nouns": ["new year's eve"]
+    , "_prefices": ["wild"]
+    }
+,   { "_holiday": "NewYearsDay"
+    , "_calday": { "_year": 1900
+                 , "_month": 1
+                 , "_day": 1
+                 }
+    , "_recurring": true
+    , "_nouns": ["new year's day", "near year"]
+    , "_prefices": ["fresh"]
+    }
+,   { "_holiday": "CincoDeMayo"
+    , "_calday": { "_year": 1900
+                 , "_month": 5
+                 , "_day": 5
+                 }
+    , "_recurring": true
+    , "_nouns": ["cinco de mayo"]
+    , "_prefices": ["festive", "picante", "caliente"]
+    }
+]

@@ -356,13 +356,15 @@ extractActivityRating token act = do
           speed = MetersPerSec $ realToFrac $ detail ^. S.averageSpeed
           start = detail ^. S.startDate -- [Note startDateLocal]
           zone  = textToTimeZone $ from (detail ^. S.timezone)
+          local = utcToLocalTime zone start
       in ActivityRating
           s
           (distanceToRating s dist)
           (durationToRating s dur)
           (elevationToRating s ele dist)
           (speedToRating s speed)
-          (localTimeToPOD (utcToLocalTime zone start))
+          (localTimeToPOD local)
+          (localTimeToCal local)
 
 -- [Note startDateLocal]
 -- The way the remove API works is a bit suprising.  startDate is the UTC start date+time.

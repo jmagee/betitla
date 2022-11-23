@@ -23,5 +23,5 @@ class (FromJSON a, Eq a) => Term a where
   termFile :: a -> String
   pickTerm :: a -> ReaderIO Env String
   pickTerm rating = asks (M.lookup (termFile rating)) >>= \case
-      Just x  -> liftIO $ parseAbsFile x >>= readTermTable >>= \y -> pickRandTerm rating y
+      Just x  -> liftIO $ parseAbsFile x >>= readTermTable >>= pickRandTerm rating
       Nothing -> pure "nada"

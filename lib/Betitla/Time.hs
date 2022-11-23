@@ -4,6 +4,7 @@ module Betitla.Time
 ( PhaseOfDay (..)
 , Duration (..)
 , DurationRating (..)
+--, Holiday (..)
 , CalDay (..)
 , durationToRating
 , toSec
@@ -13,8 +14,8 @@ module Betitla.Time
 , textToTimeZone
 , utcToCal
 , localTimeToCal
+, (!==!)
 ) where
-
 
 import           Betitla.Sport
 import           Betitla.Term
@@ -49,28 +50,38 @@ instance FromJSON PhaseOfDay
 instance Arbitrary PhaseOfDay where
   arbitrary = oneof $ pure <$> [PreDawn, Morning, Afternoon, Evening, LateNight]
 
-data Holidays = Halloween
-              | Christmas
-              | GroundHogsDay
-              | ValentinesDay
-              | NewYearsEve
-              | NewYearsDay
-              | CincoDeMayo
-              | Juneteenth
-              | BastilleDay
-              | MemorialDay
-              | LaborDay
-              | FourthOfJuly
-              | ThanksgivingUS
-              | ThanksgivingCanada
-              deriving (Show, Eq, Generic)
+{-data Holiday = Halloween-}
+             {-| Christmas-}
+             {-| GroundHogsDay-}
+             {-| ValentinesDay-}
+             {-| NewYearsEve-}
+             {-| NewYearsDay-}
+             {-| CincoDeMayo-}
+             {-| Juneteenth-}
+             {-| BastilleDay-}
+             {-| MemorialDay-}
+             {-| LaborDay-}
+             {-| FourthOfJuly-}
+             {-| ThanksgivingUS-}
+             {-| ThanksgivingCanada-}
+             {-deriving (Show, Eq, Generic)-}
+
+{-instance FromJSON Holiday-}
+-- ^ Actually we may need  this.  The reason is, for having different terms for the holidays.
+-- or maybe not, why not just put them in the Hols?
 
 data CalDay =
   CalDay { _year  :: Integer
          , _month :: Int
          , _day   :: Int
-         } deriving (Show, Eq)
+         } deriving (Show, Eq, Generic)
 
+instance FromJSON CalDay
+
+(!==!) :: CalDay -> CalDay -> (Bool, Bool, Bool)
+(CalDay a b c) !==! (CalDay x y z) = (a == x, b == y, c == z)
+
+-- | Create a CalDay from the triple of Year, Month, and Day.
 calDayFromTriple :: (Integer, Int, Int) -> CalDay
 calDayFromTriple (a, b, c) = CalDay a b c
 
@@ -170,8 +181,10 @@ durationToRating sport dur = select dur (pickDtable sport) durationRatings
     pickDtable AlpineSki = [Minutes 30, Hours 1, Hours 2, Hours 4, Hours 8]
     pickDtable Golf = [Minutes 15, Minutes 30, Hours 1, Hours 2, Hours 3]
 
+-- | Convert a UTC time to CalDay.
 utcToCal :: UTCTime -> CalDay
 utcToCal = calDayFromTriple . toGregorian . utctDay
 
+-- | Convert a local time to CalDay.
 localTimeToCal :: LocalTime -> CalDay
 localTimeToCal = calDayFromTriple . toGregorian . localDay

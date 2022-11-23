@@ -31,11 +31,15 @@ pickRandTerm :: Eq a => a -> TermTable a -> IO String
 pickRandTerm key table = maybe (pure "nothing") pickRandSyn $
   findIndexL ((key ==) . _term) table >>= flip S.lookup table
 
+-- | Read a TermTable from the provided absolute file path.
 readTermTable :: FromJSON a => Path Abs File -> IO (TermTable a)
 readTermTable file = unlessEmpty file Empty $ \contents ->
   either (jbail file) id (eitherDecode' contents :: FromJSON a => Either String (TermTable a))
 
+-- | Pick any synonym, at random, from the term table entry.
+-- If there are no synonyms, then this will return the string "nothing".
 pickRandSyn :: TermTableEntry a -> IO String
-pickRandSyn (TermTableEntry _  syns) = do
-  r <- randInt 0 $ S.length syns - 1
-  pure $ fromMaybe "nothing" (S.lookup r syns)
+pickRandSyn (TermTableEntry _ syns) = fromMaybe "nothing" <$> pickRand syns
+{-pickRandSyn (TermTableEntry _  syns) = do-}
+  {-r <- randInt 0 $ S.length syns - 1-}
+  {-pure $ fromMaybe "nothing" (S.lookup r syns)-}

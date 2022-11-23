@@ -29,7 +29,7 @@ import qualified Data.Map               as M (lookup)
 -- Holiday activity
 -- "Long, flat, and fast activity"
 data Sentence = SentenceSimple
---              | SentenceHoliday
+              | SentenceHoliday
               deriving (Show)
 
 type ReaderIO a b = ReaderT a IO b
@@ -49,6 +49,11 @@ genSentence SentenceSimple rating = do
   terms <- liftIO (randInt 3 4) >>= \r -> genN r rating
   sprt  <- pickTerm $ rating ^. sport
   (pure . capFirst . dropLeadingSpaces ) $ unwords [phase, terms, sprt]
+
+{-genSentence SentenceHoliday rating =-}
+  {-liftIO coinFlip >>= \case-}
+    {--- Noun varient-}
+    {-True -> pickRandNoun-}
 
 getAll :: ActivityRating -> ReaderIO Env [String]
 getAll activity = sequence
