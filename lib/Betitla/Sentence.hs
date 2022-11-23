@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Betitla.Sentence
 ( Sentence (..)
 , genSentence
@@ -23,6 +25,9 @@ import           Control.Monad.Reader   (Reader, ReaderT, ask, runReaderT)
 import           Data.Char              (isSpace, toUpper)
 import           Data.List              (intersperse)
 import qualified Data.Map               as M (lookup)
+import           Data.Text              (Text)
+import qualified Data.Text              as T (concat, cons, dropWhile, uncons,
+                                              unwords)
 
 -- Sentence types
 -- "Epic ride .."
@@ -34,21 +39,21 @@ data Sentence = SentenceSimple
 
 type ReaderIO a b = ReaderT a IO b
 
-lookupTest :: String -> Reader Env (Maybe String)
+lookupTest :: Text -> Reader Env (Maybe Text)
 lookupTest s = ask >>= \x -> pure $ M.lookup s x
 
-lookupTest' :: String -> ReaderIO Env (Maybe String)
+lookupTest' :: Text -> ReaderIO Env (Maybe Text)
 lookupTest' s = ask >>= \x -> pure $ M.lookup s x
 
-genSentence' :: Sentence -> ActivityRating -> IO String
+genSentence' :: Sentence -> ActivityRating -> IO Text
 genSentence' sentence rating = getEnvRC >>= runReaderT (genSentence sentence rating)
 
-genSentence :: Sentence -> ActivityRating -> ReaderIO Env String
+genSentence :: Sentence -> ActivityRating -> ReaderIO Env Text
 genSentence SentenceSimple rating = do
   phase <- liftIO coinFlip >>= \x -> x ? pickTerm (rating ^. phaseOfDay) $ pure ""
   terms <- liftIO (randInt 3 4) >>= \r -> genN r rating
   sprt  <- pickTerm $ rating ^. sport
-  (pure . capFirst . dropLeadingSpaces ) $ unwords [phase, terms, sprt]
+  (pure . capFirst . dropLeadingSpaces ) $ T.unwords [phase, terms, sprt]
 
 genSentence SentenceHoliday _ = undefined
 {-genSentence SentenceHoliday rating =-}
@@ -56,7 +61,7 @@ genSentence SentenceHoliday _ = undefined
     {--- Noun varient-}
     {-True -> pickRandNoun-}
 
-getAll :: ActivityRating -> ReaderIO Env [String]
+getAll :: ActivityRating -> ReaderIO Env [Text]
 getAll activity = sequence
   [ --pickTerm phase
     pickTerm $ activity ^. speedRating
@@ -66,7 +71,7 @@ getAll activity = sequence
   --, pickTerm sport
   ]
 
-genN :: Int -> ActivityRating -> ReaderIO Env String
+genN :: Int -> ActivityRating -> ReaderIO Env Text
 genN n activity = getAll activity >>= sentency . drop m
   where
     m = 4 - n
@@ -74,8 +79,8 @@ genN n activity = getAll activity >>= sentency . drop m
 
 -- | Like intercalate but with a separate pattern for the last items.
 -- I.e. "a, b, and c".
-intercalateAnd :: [a] -> [a] -> [[a]] -> [a]
-intercalateAnd join1 join2 list = concat $ intersperse join1 (removeTail list) ++ [join2, last list]
+intercalateAnd :: Text -> Text -> [Text] -> Text
+intercalateAnd join1 join2 list = T.concat $ intersperse join1 (removeTail list) ++ [join2, last list]
 
 -- Like intercalateAnd, but with an additional join pattern.
 -- I.e. "a, b, and c; but d"
@@ -88,13 +93,17 @@ removeTail :: [a] -> [a]
 removeTail = reverse . drop 1 . reverse
 
 -- | Cap first
-capFirst :: [Char] -> [Char]
-capFirst (x:xs) = toUpper x : xs
-capFirst []     = []
+--capFirst :: [Char] -> [Char]
+--capFirst (x:xs) = toUpper x : xs
+--capFirst []     = []
+capFirst :: Text -> Text
+capFirst t = case T.uncons t of
+  Nothing      -> t
+  Just (x, xs) -> T.cons (toUpper x) xs
 
 -- | Drop leading whitespace from a string
-dropLeadingSpaces :: String -> String
-dropLeadingSpaces = dropWhile isSpace
+dropLeadingSpaces :: Text -> Text
+dropLeadingSpaces = T.dropWhile isSpace
 
 {--- | Apply something to the start of the sentence-}
 {-applyPrefix :: [Char] -> [Char] -> [Char]-}

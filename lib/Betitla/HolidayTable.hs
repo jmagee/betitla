@@ -25,18 +25,18 @@ import           Betitla.Error
 import           Betitla.Time
 import           Betitla.Util
 
-import Data.Functor ((<&>))
-import           Control.Lens.Getter ((^.))
-import           Data.Aeson          (FromJSON, eitherDecode')
-import           Data.Sequence       (Seq (..))
-import qualified Data.Sequence       as S (filter, null)
-import           Data.Text           (Text)
-import           GHC.Generics        (Generic)
-import           Path                (Abs, File, Path)
-import Data.Map as M (lookup)
-import Control.Monad.Reader (ReaderT, asks)
-import Path (parseAbsFile)
-import Control.Monad.IO.Class (liftIO)
+import           Control.Lens.Getter    ((^.))
+import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.Reader   (ReaderT, asks)
+import           Data.Aeson             (FromJSON, eitherDecode')
+import           Data.Functor           ((<&>))
+import           Data.Map               as M (lookup)
+import           Data.Sequence          (Seq (..))
+import qualified Data.Sequence          as S (filter, null)
+import           Data.Text              (Text)
+import           GHC.Generics           (Generic)
+import           Path                   (Abs, File, Path, parseAbsFile)
+import           Witch                  (from)
 
 -- FIXME
 type ReaderIO a b = ReaderT a IO b
@@ -122,7 +122,7 @@ isHoliday = notEmpty . lookupHoliday
 -- This version returns an empty table upon failure.
 holidays' :: ReaderIO Env HolidayTable
 holidays' = asks (M.lookup "Hols.holidays") >>= \case
-  Just x   -> liftIO $ parseAbsFile x >>= readHolidayTable
+  Just x   -> liftIO $ parseAbsFile (from x) >>= readHolidayTable
   Nothing  -> pure Empty
 
 -- | Get all the holidays.

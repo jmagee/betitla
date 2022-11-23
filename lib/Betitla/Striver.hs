@@ -79,7 +79,7 @@ import           Witch                      (From, from, unsafeFrom)
 
 type ReaderIO a b = ReaderT a IO b
 
-newtype ClientSecret = ClientSecret String
+newtype ClientSecret = ClientSecret Text
                      deriving (Show)
 
 newtype AppId = AppId Integer
@@ -88,11 +88,11 @@ newtype AppId = AppId Integer
 instance From AppId Integer where
   from (AppId x) = x
 
-newtype AuthCode = AuthCode String
+newtype AuthCode = AuthCode Text
                  deriving (Show)
 
 -- | Helper to fetch and construct a token-like thing from the Env.
-askToken :: String -> (String -> a) -> ReaderIO Env (Maybe a)
+askToken :: Text -> (Text -> a) -> ReaderIO Env (Maybe a)
 askToken term cons = asks $ fmap cons . M.lookup term
 
 -- | Helper to fetch the secret token from the reader Env.
@@ -103,13 +103,13 @@ getSecretToken = askToken "Client.secret" ClientSecret
 getAppId :: ReaderIO Env (Maybe AppId)
 getAppId = askToken "App.id" makeAppId
   where
-    makeAppId string = AppId (read string :: Integer)
+    makeAppId string = AppId (read (from @Text string) :: Integer)
 
 -- | Helper to fetch the dbName from the Reader Env.
 getDbName :: ReaderIO Env (Maybe (Path Abs File))
 getDbName = askToken "Db.name" id >>= \case
   Nothing -> pure Nothing
-  Just x' -> pure $ parseAbsFile x'
+  Just x' -> pure $ parseAbsFile $ from x'
 
 -- | Helper to get the app slogan.
 getSlogan :: ReaderIO Env (Maybe Text)
@@ -122,7 +122,7 @@ propagateStriveError (full, msg) = StriveError $ tshow full <> " ; " <> from msg
 -- | Using a 1-time authorization code, request the AccessToken from the remote.
 getAccessToken :: AppId -> ClientSecret -> AuthCode -> IO (Either Error AccessToken)
 getAccessToken (AppId appId) (ClientSecret secret) (AuthCode code) =
-  exchangeToken appId secret code <&>
+  exchangeToken appId (from secret) (from code) <&>
     bimap propagateStriveError
           (liftA3 buildAccessToken
             (^. accessToken)
@@ -136,7 +136,7 @@ getAccessToken (AppId appId) (ClientSecret secret) (AuthCode code) =
 -- isTokenAlive to guard against such unnecessary calls.
 refreshAccessToken :: AppId -> ClientSecret -> AccessToken -> IO (Either Error AccessToken)
 refreshAccessToken (AppId appId) (ClientSecret secret) token =
-  refreshExchangeToken appId secret (from $ token ^. refresh) <&>
+  refreshExchangeToken appId (from secret) (from $ token ^. refresh) <&>
     bimap propagateStriveError
           (liftA3 buildAccessToken
             (^. accessToken)
@@ -148,7 +148,7 @@ getAuthUrl = do
   appId <- getAppId
   host  <- askToken "Host.url" id
   pure $ buildAuthorizeUrl <$> fmap from appId
-                           <*> host
+                           <*> fmap from host
                            <*> Just (with [ set approvalPrompt False
                                           , set readScope True
                                           , set readAllScope True

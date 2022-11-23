@@ -8,10 +8,11 @@ import           Betitla.Util
 
 import           Data.Aeson   (eitherDecode')
 import           Data.Map     (Map, empty)
+import           Data.Text    (Text)
 import           Path         (Abs, File, Path, parseAbsFile)
 
 -- | The environment type is simply a map of string pairs.
-type Env = Map String String
+type Env = Map Text Text
 
 -- | Get Env from the RC file
 getEnvRC :: IO Env
