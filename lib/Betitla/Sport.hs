@@ -5,7 +5,6 @@ module Betitla.Sport
 ) where
 
 import           Betitla.Term
-import           Betitla.Util
 
 import           Data.Aeson   (FromJSON)
 import           GHC.Generics (Generic)

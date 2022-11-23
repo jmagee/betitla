@@ -21,17 +21,15 @@ import           Betitla.Sport
 import           Betitla.Term
 import           Betitla.Util
 
-import Data.Time.Clock (UTCTime, utctDay)
-import Data.Time.Calendar (toGregorian)
 import           Data.Aeson                (FromJSON)
 import           Data.Either               (fromRight)
+import           Data.Time.Calendar        (toGregorian)
+import           Data.Time.Clock           (UTCTime, utctDay)
 import           Data.Time.LocalTime       (LocalTime (..), TimeOfDay (..),
                                             TimeZone (..))
 import           GHC.Generics              (Generic)
-import           Path                      (Abs, File, absfile)
-import           Text.Parsec               (Parsec, anyChar, char, choice,
-                                            count, digit, many, parse, spaces,
-                                            string)
+import           Text.Parsec               (anyChar, char, choice, count, digit,
+                                            many, parse, spaces, string)
 
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
@@ -180,6 +178,7 @@ durationToRating sport dur = select dur (pickDtable sport) durationRatings
     pickDtable Hike = [Minutes 30, Hours 1, Hours 2, Hours 8, Hours 10]
     pickDtable AlpineSki = [Minutes 30, Hours 1, Hours 2, Hours 4, Hours 8]
     pickDtable Golf = [Minutes 15, Minutes 30, Hours 1, Hours 2, Hours 3]
+    pickDtable _ = undefined -- FIXME
 
 -- | Convert a UTC time to CalDay.
 utcToCal :: UTCTime -> CalDay

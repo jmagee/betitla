@@ -50,6 +50,7 @@ genSentence SentenceSimple rating = do
   sprt  <- pickTerm $ rating ^. sport
   (pure . capFirst . dropLeadingSpaces ) $ unwords [phase, terms, sprt]
 
+genSentence SentenceHoliday _ = undefined
 {-genSentence SentenceHoliday rating =-}
   {-liftIO coinFlip >>= \case-}
     {--- Noun varient-}

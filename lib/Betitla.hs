@@ -14,22 +14,15 @@ import           Betitla.Env
 import           Betitla.Error
 import           Betitla.Sentence
 import           Betitla.Striver
-import           Betitla.StriverIds
 import           Betitla.HolidayTable
 import           Betitla.Util
 
-import           Control.Monad.IO.Class     (MonadIO, liftIO)
+import           Control.Lens.Getter        ((^.))
+import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Reader       (lift, runReaderT)
-import           Control.Monad.Trans.Either (hoistEither, newEitherT,
-                                             runEitherT)
-
-import Control.Lens.Getter ((^.))
-import           Data.Bool                  (bool)
+import           Control.Monad.Trans.Either (newEitherT, runEitherT)
 import           Data.Text                  (Text)
-import           Data.Time                  (UTCTime (..))
-import           Data.Time.Calendar         (fromGregorian)
 import           Witch                      (from)
---import           Strive
 
 {-testStrive :: IO ()-}
 {-testStrive = do-}
@@ -59,9 +52,9 @@ import           Witch                      (from)
   {-print (tokenExchangeResponse :: Result TokenExchangeResponse)-}
 
 rename' :: AthleteId -> ActivityId -> IO (Either Error Text)
-rename' athlete activity = getEnvRC >>= \env -> runReaderT (go env) env
+rename' athlete activity = getEnvRC >>= \env -> runReaderT go env
   where
-    go env = runEitherT $ do
+    go = runEitherT $ do
       returner <- newEitherT $ doIKnowYou athlete
       returnerGuard_ returner
 

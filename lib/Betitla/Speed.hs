@@ -15,7 +15,6 @@ import           Betitla.Util
 
 import           Data.Aeson                (FromJSON)
 import           GHC.Generics              (Generic)
-import           Path                      (Abs, File, Path, absfile)
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
 
@@ -83,6 +82,7 @@ speedToRating sport speed = select speed (pickDtable sport) speedRatings
     pickDtable Run = MinPerKm <$> [12.0, 10.0, 7.0, 5.0]
     pickDtable Walk = MinPerKm <$> [20.0, 15.0, 12.0, 10.0]
     pickDtable Hike = MinPerKm <$> [20.0, 15.0, 12.0, 10.0]
+    pickDtable _ = undefined -- FIXME
 
     {-pickDtable Hike =-}
     {-pickDtable AlpineSki =-}

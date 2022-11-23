@@ -13,7 +13,7 @@ import           Betitla.Util
 import           Data.Aeson    (FromJSON, eitherDecode')
 import           Data.Maybe    (fromMaybe)
 import           Data.Sequence (Seq (..), findIndexL)
-import qualified Data.Sequence as S (length, lookup)
+import qualified Data.Sequence as S (lookup)
 import           GHC.Generics  (Generic)
 import           Path          (Abs, File, Path)
 
@@ -40,6 +40,3 @@ readTermTable file = unlessEmpty file Empty $ \contents ->
 -- If there are no synonyms, then this will return the string "nothing".
 pickRandSyn :: TermTableEntry a -> IO String
 pickRandSyn (TermTableEntry _ syns) = fromMaybe "nothing" <$> pickRand syns
-{-pickRandSyn (TermTableEntry _  syns) = do-}
-  {-r <- randInt 0 $ S.length syns - 1-}
-  {-pure $ fromMaybe "nothing" (S.lookup r syns)-}

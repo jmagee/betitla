@@ -44,37 +44,37 @@ import           Betitla.Util
 
 import           Control.Applicative        (liftA3)
 import           Control.Lens.Getter        ((^.))
-import           Control.Lens.Setter        (set, (.~))
+import           Control.Lens.Setter        (set)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.Reader       (ReaderT, asks, lift)
+import           Control.Monad.Reader       (ReaderT, asks)
 import           Control.Monad.Trans.Either (hoistEither, newEitherT,
-                                             runEitherT, hoistMaybe)
+                                             runEitherT)
 import           Data.Bifunctor             (bimap)
 import           Data.ByteString.Lazy       (ByteString)
 import           Data.Functor               ((<&>))
-import qualified Data.Map              as M (lookup)
+import qualified Data.Map                   as M (lookup)
 import           Data.Maybe                 (fromMaybe)
 import           Data.Text                  (Text, append, isInfixOf)
 import           Data.Time.LocalTime        (utcToLocalTime)
 import           Network.HTTP.Client        (Response)
 import           Path                       (Abs, File, Path, parseAbsFile,
                                              toFilePath)
-import qualified Strive                as S (ActivityType (..),
-                                             averageSpeed, description,
-                                             distance, id, movingTime,
-                                             name, startDate, timezone,
-                                             totalElevationGain, type_)
-import           Strive                     (ActivityDetailed, AthleteSummary,
-                                             Client, Result,
-                                             TokenExchangeResponse, accessToken,
-                                             allEfforts, buildClient,
-                                             deauthorize, exchangeToken,
-                                             expiresAt, getActivityDetailed,
+import qualified Strive                     as S (ActivityType (..),
+                                                  averageSpeed, description,
+                                                  distance, id, movingTime,
+                                                  name, startDate, timezone,
+                                                  totalElevationGain, type_)
+import           Strive                     (ActivityDetailed, Client,
+                                             accessToken, activityReadAllScope,
+                                             activityWriteScope, allEfforts,
+                                             approvalPrompt, buildAuthorizeUrl,
+                                             buildClient, deauthorize,
+                                             exchangeToken, expiresAt,
+                                             getActivityDetailed,
                                              getCurrentAthleteSummary,
+                                             readAllScope, readScope,
                                              refreshExchangeToken, refreshToken,
-                                             updateActivity, with, buildAuthorizeUrl,
-                                             approvalPrompt, readAllScope, activityReadAllScope,
-                                             activityWriteScope, readScope)
+                                             updateActivity, with)
 import           Witch                      (From, from, unsafeFrom)
 
 type ReaderIO a b = ReaderT a IO b
@@ -313,7 +313,7 @@ dropUser athlete =
     Just name -> liftIO $ go name
   where
    go name = withDb (toFilePath name) $ runEitherT $ do
-      striver   <- newEitherT $ selectStriverFromDb athlete
+      _         <- newEitherT $ selectStriverFromDb athlete
       _         <- newEitherT $ Right <$> deleteStriverFromDb athlete
       pure ()
 

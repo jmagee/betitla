@@ -12,6 +12,12 @@ module Betitla.HolidayTable
 , isHoliday
 , holidays'
 , holidays
+
+-- Lenses
+, holiday
+, recurring
+, nouns
+, prefices
 ) where
 
 import           Betitla.Env

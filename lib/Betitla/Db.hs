@@ -48,26 +48,25 @@ import           Betitla.StriverIds
 import           Betitla.Util           (tshow)
 
 import           Control.Lens.Getter    ((^.))
+import           Control.Lens.TH        (makeLenses)
+import           Data.Functor           ((<&>))
 import           Data.Functor.Identity  (Identity)
-import           Data.Functor ((<&>))
 import           Data.Int               (Int64)
 import           Data.Text              (Text)
 import           Data.Time.Clock.System (SystemTime (..))
 import           Database.Beam          (Beamable, Columnar, Database,
                                          DatabaseEntity, DatabaseSettings,
-                                         LensFor (..), MonadBeam, PrimaryKey, Q,
-                                         QExpr, Table (..), TableEntity, all_,
+                                         MonadBeam, PrimaryKey, Q, QExpr,
+                                         Table (..), TableEntity, all_,
                                          defaultDbSettings, delete, guard_,
                                          insert, insertValues, runDelete,
                                          runInsert, runSelectReturningList,
-                                         runUpdate, save, select, tableLenses,
-                                         val_, (==.))
+                                         runUpdate, save, select, val_, (==.))
 import           Database.Beam.Sqlite   (Sqlite, SqliteM, runBeamSqlite)
 import           Database.SQLite.Simple (Connection, close, execute_, open)
 import           GHC.Generics           (Generic)
 import           System.Directory       (doesFileExist)
 import           Witch                  (from, into)
-import Control.Lens.TH (makeLenses)
 
 -- | Database table data for a single "Striver".
 -- This records the striver ID, access and refresh tokens, and the refresh token expiration

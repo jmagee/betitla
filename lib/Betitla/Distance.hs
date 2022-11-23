@@ -14,12 +14,10 @@ module Betitla.Distance
 
 import           Betitla.Sport
 import           Betitla.Term
-import           Betitla.TermTable
 import           Betitla.Util
 
 import           Data.Aeson                (FromJSON)
 import           GHC.Generics              (Generic)
-import           Path                      (Abs, File, Path, absfile)
 import           Test.QuickCheck           (Gen, oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary, shrink)
 
@@ -81,6 +79,7 @@ distanceToRating sport dist = select dist (pickDtable sport) distanceRatings
     pickDtable Hike = pickDtable Run
     pickDtable AlpineSki = Kilometers <$> [1, 5, 10, 20, 30]
     pickDtable Golf = Kilometers <$> [0, 0, 0, 0, 0]
+    pickDtable _ = undefined -- FIXME
 
 newtype Elevation = MetersGained Int
                   deriving (Show, Eq, Ord)
@@ -114,3 +113,37 @@ elevationToRating sport elevation dist = select (metersPerKm elevation dist) (pi
     pickDtable Ride = [1, 4, 10, 20]
     pickDtable Run  = [1, 4, 10, 20]
     pickDtable Walk = [1, 4, 10, 20]
+    pickDtable AlpineSki = undefined
+    pickDtable BackcountrySki = undefined
+    pickDtable Canoeing = undefined
+    pickDtable Crossfit = undefined
+    pickDtable EBikeRide = undefined
+    pickDtable Elliptical = undefined
+    pickDtable Golf = undefined
+    pickDtable Handcycle = undefined
+    pickDtable Hike = undefined
+    pickDtable IceSkate = undefined
+    pickDtable InlineSkate = undefined
+    pickDtable Kayaking = undefined
+    pickDtable Kitesurf = undefined
+    pickDtable NordicSki = undefined
+    pickDtable RockClimbing = undefined
+    pickDtable RollerSki = undefined
+    pickDtable Rowing = undefined
+    pickDtable Sail = undefined
+    pickDtable Skateboard = undefined
+    pickDtable Snowboard = undefined
+    pickDtable Snowshoe = undefined
+    pickDtable Soccer = undefined
+    pickDtable StairStepper = undefined
+    pickDtable StandUpPaddling = undefined
+    pickDtable Surfing = undefined
+    pickDtable Swim = undefined
+    pickDtable Velomobile = undefined
+    pickDtable VirtualRide = undefined
+    pickDtable VirtualRun = undefined
+    pickDtable WeightTraining = undefined
+    pickDtable Wheelchair = undefined
+    pickDtable Windsurf = undefined
+    pickDtable Workout = undefined
+    pickDtable Yoga = undefined

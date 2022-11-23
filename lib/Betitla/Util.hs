@@ -101,7 +101,7 @@ eitherTGuard_ err = hoistEither . bool (Left err) (pure ())
 
 -- | Pick a random item from a sequence.
 pickRand :: Seq a -> IO (Maybe a)
-pickRand seq = uplook seq <$> randInt 0 (S.length seq - 1)
+pickRand s = uplook s <$> randInt 0 (S.length s - 1)
   where
     uplook = flip S.lookup
 
