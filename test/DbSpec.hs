@@ -4,9 +4,7 @@ module DbSpec (spec) where
 
 import           Betitla.AccessToken
 import           Betitla.Db
-import           Betitla.Error
 import           Betitla.Striver
-import           Betitla.StriverIds
 
 import           Control.Lens.Getter    ((^.))
 import           Control.Lens.Setter    ((.~))
@@ -14,7 +12,7 @@ import           Data.Either            (isLeft, isRight)
 import           Data.Time.Clock.System (SystemTime (..))
 import           System.Directory       (doesFileExist, removeFile)
 import           Test.Hspec
-import           Test.Hspec.QuickCheck  (prop)
+--import           Test.Hspec.QuickCheck  (prop)
 
 testDbName :: String
 testDbName = "._test.db"
