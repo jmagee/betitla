@@ -56,8 +56,7 @@ genSentence SentenceSimple rating = do
   phase <- liftIO coinFlip >>= \x -> x ? pickTerm (rating ^. phaseOfDay) $ pure ""
   terms <- liftIO (randInt 3 4) >>= \r -> genN r rating
   sprt  <- pickTerm $ rating ^. sport
-  (pure . capFirst . dropLeadingSpaces ) $ T.unwords [phase, ", ", terms, sprt]
-  -- Fix me - the above ", " is not correct...
+  (pure . capFirst . dropLeadingSpaces ) $ T.unwords [phase, terms, sprt]
 
 --genSentence SentenceHoliday _ = undefined
 genSentence SentenceHoliday rating = do
