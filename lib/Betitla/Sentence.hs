@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Betitla.Sentence
@@ -16,6 +17,7 @@ import           Betitla.Env
 --import           Betitla.Speed
 --import           Betitla.Sport
 import           Betitla.Term
+import           Betitla.HolidayTable
 --import           Betitla.Time
 import           Betitla.Util
 
@@ -25,6 +27,7 @@ import           Control.Monad.Reader   (Reader, ReaderT, ask, runReaderT)
 import           Data.Char              (isSpace, toUpper)
 import           Data.List              (intersperse)
 import qualified Data.Map               as M (lookup)
+import           Data.Sequence          (Seq (..))
 import           Data.Text              (Text)
 import qualified Data.Text              as T (concat, cons, dropWhile, uncons,
                                               unwords)
@@ -53,13 +56,24 @@ genSentence SentenceSimple rating = do
   phase <- liftIO coinFlip >>= \x -> x ? pickTerm (rating ^. phaseOfDay) $ pure ""
   terms <- liftIO (randInt 3 4) >>= \r -> genN r rating
   sprt  <- pickTerm $ rating ^. sport
-  (pure . capFirst . dropLeadingSpaces ) $ T.unwords [phase, terms, sprt]
+  (pure . capFirst . dropLeadingSpaces ) $ T.unwords [phase, ", ", terms, sprt]
+  -- Fix me - the above ", " is not correct...
 
-genSentence SentenceHoliday _ = undefined
-{-genSentence SentenceHoliday rating =-}
-  {-liftIO coinFlip >>= \case-}
-    {--- Noun varient-}
-    {-True -> pickRandNoun-}
+--genSentence SentenceHoliday _ = undefined
+genSentence SentenceHoliday rating = do
+  sprt      <- pickTerm $ rating ^. sport
+  celebrate <- lookupHoliday (rating ^. calenderDay) <$> holidays'
+
+  case celebrate of
+    Empty -> genSentence SentenceSimple rating
+    (x :<| _)    -> liftIO coinFlip >>= \case
+      True -> do -- Noun variant
+        noun  <- liftIO $ pickRandNoun x
+        (pure . capFirst) $ T.unwords [noun, sprt]
+      False -> do
+        noun  <- liftIO $ pickRandPrefix x
+        terms <- liftIO (randInt 2 3) >>= \r -> genN r rating
+        (pure . capFirst) $ T.unwords [noun, terms, sprt]
 
 getAll :: ActivityRating -> ReaderIO Env [Text]
 getAll activity = sequence
