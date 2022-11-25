@@ -6,7 +6,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["halloween", "all hallow's eve", "day of the dead", "dia de las mortes"]
-    , "_prefices": ["spooky", "haunted"]
+    , "_prefices": ["spookily", "hauntedly"]
     }
 ,   { "_holiday": "Christmas"
     , "_calday": { "_year": 1900
@@ -15,7 +15,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["christmas"]
-    , "_prefices": ["merry", "jolly"]
+    , "_prefices": ["merrily", "jollily"]
     }
 ,   { "_holiday": "GroundHogsDay"
     , "_calday": { "_year": 1900
@@ -24,7 +24,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["groundhog's day"]
-    , "_prefices": ["hoggish"]
+    , "_prefices": ["hoggishly"]
     }
 ,   { "_holiday": "ValentinesDay"
     , "_calday": { "_year": 1900
@@ -33,7 +33,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["valentine's day", "love day"]
-    , "_prefices": ["loving", "romantic"]
+    , "_prefices": ["lovingly", "romanticly"]
     }
 ,   { "_holiday": "NewYearsEve"
     , "_calday": { "_year": 1900
@@ -42,7 +42,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["new year's eve"]
-    , "_prefices": ["wild"]
+    , "_prefices": ["wildly"]
     }
 ,   { "_holiday": "NewYearsDay"
     , "_calday": { "_year": 1900
@@ -51,7 +51,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["new year's day", "near year"]
-    , "_prefices": ["fresh"]
+    , "_prefices": ["freshly"]
     }
 ,   { "_holiday": "CincoDeMayo"
     , "_calday": { "_year": 1900
@@ -60,6 +60,6 @@
                  }
     , "_recurring": true
     , "_nouns": ["cinco de mayo"]
-    , "_prefices": ["festive", "picante", "caliente"]
+    , "_prefices": ["festively", "picantemente", "calientemente"]
     }
 ]

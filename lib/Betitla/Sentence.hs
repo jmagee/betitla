@@ -88,7 +88,7 @@ genN :: Int -> ActivityRating -> ReaderIO Env Text
 genN n activity = getAll activity >>= sentency . drop m
   where
     m = 4 - n
-    sentency = pure . {-capFirst .-} intercalateAnd ", " ", and "
+    sentency = pure . intercalateAnd ", " ", and "
 
 -- | Like intercalate but with a separate pattern for the last items.
 -- I.e. "a, b, and c".
