@@ -7,7 +7,10 @@ module Betitla.Util
 , dropAny
 , mkHomePath
 , randInt
-, coinFlip
+--, Coin (..)
+--, coinFlip
+--, coinChoice
+, uponCoinFlipM
 , tshow
 , (?)
 , eitherTGuard_
@@ -15,6 +18,7 @@ module Betitla.Util
 , pickRandText
 ) where
 
+import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.Trans.Either (EitherT, hoistEither)
 import           Data.Bool                  (bool)
 import qualified Data.ByteString.Lazy       as BS (ByteString, null, readFile)
@@ -73,10 +77,29 @@ mkHomePath x = (`slash` x) <$> getHomeDirectory
 randInt :: Int -> Int -> IO Int
 randInt n m = getStdGen <&> (fst . randomR (n, m))
 
+-- | Heads or Tails.
+-- Basically a Bool but more strongish.
+data Coin = Heads | Tails deriving (Show, Eq)
+
 -- | Flip for it.
-coinFlip :: IO Bool
---coinFlip = randInt 0 1 >>= pure . (== 1)
-coinFlip = randInt 0 1 <&> (==1)
+coinFlip :: IO Coin
+coinFlip = randInt 0 1 <&> (==1) <&> makeCoin
+  where
+    makeCoin True  = Heads
+    makeCoin False = Tails
+
+-- | Case selection for coinflips.
+coinChoice :: a -> a -> Coin -> a
+coinChoice onHeads onTails coin = case coin of
+  Heads -> onHeads
+  Tails -> onTails
+
+-- | coinFlip and coinChoice combined
+uponCoinFlipM :: MonadIO m => m a -> m a -> m a
+uponCoinFlipM x y = do
+  x' <- x
+  y' <- y
+  liftIO coinFlip <&> coinChoice x' y'
 
 -- | Show for Text
 tshow :: Show a => a -> Text

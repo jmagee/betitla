@@ -27,7 +27,6 @@ import           Control.Monad.Reader   (Reader, ReaderT, ask, runReaderT)
 import           Data.Char              (isSpace, toUpper)
 import           Data.List              (intersperse)
 import qualified Data.Map               as M (lookup)
-import           Data.Sequence          (Seq (..))
 import           Data.Text              (Text)
 import qualified Data.Text              as T (concat, cons, dropWhile, uncons,
                                               unwords)
@@ -53,26 +52,25 @@ genSentence' sentence rating = getEnvRC >>= runReaderT (genSentence sentence rat
 
 genSentence :: Sentence -> ActivityRating -> ReaderIO Env Text
 genSentence SentenceSimple rating = do
-  phase <- liftIO coinFlip >>= \x -> x ? pickTerm (rating ^. phaseOfDay) $ pure ""
+  phase <- uponCoinFlipM (pickTerm $ rating ^. phaseOfDay) (pure "")
   terms <- liftIO (randInt 3 4) >>= \r -> genN r rating
   sprt  <- pickTerm $ rating ^. sport
   (pure . capFirst . dropLeadingSpaces ) $ T.unwords [phase, terms, sprt]
 
---genSentence SentenceHoliday _ = undefined
 genSentence SentenceHoliday rating = do
-  sprt      <- pickTerm $ rating ^. sport
-  celebrate <- lookupHoliday (rating ^. calenderDay) <$> holidays'
-
-  case celebrate of
-    Empty -> genSentence SentenceSimple rating
-    (x :<| _)    -> liftIO coinFlip >>= \case
-      True -> do -- Noun variant
-        noun  <- liftIO $ pickRandNoun x
-        (pure . capFirst) $ T.unwords [noun, sprt]
-      False -> do
-        noun  <- liftIO $ pickRandPrefix x
-        terms <- liftIO (randInt 2 3) >>= \r -> genN r rating
-        (pure . capFirst) $ T.unwords [noun, terms, sprt]
+  sprt    <- pickTerm $ rating ^. sport
+  hol     <- holidays' >>= (liftIO . pickRand) . lookupHoliday (rating ^. calenderDay)
+  case hol of
+    Just h  -> uponCoinFlipM (makeNounForm sprt h) (makePrefixForm sprt h)
+    Nothing -> genSentence SentenceSimple rating
+  where
+    makeNounForm sprt day = do -- Noun variant, e.g. "Halloween ride"
+      noun  <- liftIO $ pickRandNoun day
+      (pure . capFirst) $ T.unwords [noun, sprt]
+    makePrefixForm sprt day = do -- Prefix form, e.g. "Spookily fast ride"
+      prefix <- liftIO $ pickRandPrefix day
+      terms  <- liftIO (randInt 2 3) >>= \r -> genN r rating
+      (pure . capFirst) $ T.unwords [prefix, terms, sprt]
 
 getAll :: ActivityRating -> ReaderIO Env [Text]
 getAll activity = sequence

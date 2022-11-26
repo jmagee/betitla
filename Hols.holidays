@@ -6,7 +6,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["halloween", "all hallow's eve", "day of the dead", "dia de las mortes"]
-    , "_prefices": ["spookily", "hauntedly"]
+    , "_prefices": ["spookily", "hauntedly", "eerily"]
     }
 ,   { "_holiday": "Christmas"
     , "_calday": { "_year": 1900
@@ -24,7 +24,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["groundhog's day"]
-    , "_prefices": ["hoggishly"]
+    , "_prefices": ["hoggishly", "shadowily"]
     }
 ,   { "_holiday": "ValentinesDay"
     , "_calday": { "_year": 1900
@@ -42,7 +42,7 @@
                  }
     , "_recurring": true
     , "_nouns": ["new year's eve"]
-    , "_prefices": ["wildly"]
+    , "_prefices": ["wildly", "joyfully"]
     }
 ,   { "_holiday": "NewYearsDay"
     , "_calday": { "_year": 1900
@@ -50,8 +50,8 @@
                  , "_day": 1
                  }
     , "_recurring": true
-    , "_nouns": ["new year's day", "near year"]
-    , "_prefices": ["freshly"]
+    , "_nouns": ["new year's day", "new year"]
+    , "_prefices": ["freshly", "resolutely"]
     }
 ,   { "_holiday": "CincoDeMayo"
     , "_calday": { "_year": 1900
@@ -61,5 +61,14 @@
     , "_recurring": true
     , "_nouns": ["cinco de mayo"]
     , "_prefices": ["festively", "picantemente", "calientemente"]
+    }
+,   { "_holiday": "SaintPatricksDay"
+    , "_calday": { "_year": 1900
+                 , "_month": 3
+                 , "_day": 17
+                 }
+    , "_recurring": true
+    , "_nouns": ["saint patrick's day"]
+    , "_prefices": ["luckily", "fortunately", "greenly"]
     }
 ]
